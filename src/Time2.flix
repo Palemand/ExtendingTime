@@ -9,6 +9,4 @@ pub mod Time2 {
     pub eff Clock {
         def now(): Time2.DateTime
     }
-
-
 }
