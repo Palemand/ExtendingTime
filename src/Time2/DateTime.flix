@@ -1,4 +1,5 @@
 pub mod Time2.DateTime {
+    use Time2.DateTime.UtcOffset
     use Time.Duration
     use Time2.DateTime.isLeapYear
     use Time2.{Flow}
@@ -92,7 +93,7 @@ pub mod Time2.DateTime {
     pub def getDateTime(
         year: Int32, month: Int32, day: Int32, 
         hours: Int32, minutes: Int32, seconds: Int32, 
-        milli: Int32, micro: Int32, nano: Int32, zone: Int32): DateTime = 
+        milli: Int32, micro: Int32, nano: Int32, zone: UtcOffset): DateTime = 
         ???
 
     pub def getDateFromDayOfYear(dayOfYear: Int32): DateTime = 
