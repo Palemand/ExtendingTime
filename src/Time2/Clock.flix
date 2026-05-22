@@ -1,6 +1,8 @@
 pub mod Time2.Clock {
+    use Time2.DateTime.UtcOffset.UtcOffset
     import java.time.{ZonedDateTime => JZonedDateTime}
     use Time2.Clock
+    
     @DefaultHandler
     pub def runWithIO(f: Unit -> a \ ef): a \ (ef - Clock) + IO =
         run {
@@ -23,7 +25,7 @@ pub mod Time2.Clock {
                     milli = millis,
                     micro = micros,
                     nano = nanos,
-                    zone = jdt.getOffset().getTotalSeconds() |> Time.Duration.seconds
+                    zone = jdt.getOffset().getTotalSeconds() |> x -> UtcOffset(Time.Duration.seconds(x))
                 }))
             }
         }

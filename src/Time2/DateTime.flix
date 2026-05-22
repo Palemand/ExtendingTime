@@ -12,8 +12,21 @@ pub mod Time2.DateTime {
         milli = Int32,
         micro = Int32,
         nano = Int32,
-        zone = Duration
+        zone = UtcOffset
     })
+
+    pub enum UtcOffset(Duration) with Eq, Order, Hash
+
+    instance ToString[UtcOffset] {
+        pub def toString(x: UtcOffset): String = 
+            let UtcOffset.UtcOffset(dur) = x;
+            let hour = Time.Duration.toHours(dur) |> Int64.clampToInt32(min = -12, max = 14);
+            let minute = (dur - Time.Duration.hours(hour)) |> Time.Duration.toMinutes |>  Int64.clampToInt32(min = -60, max = 60);
+            let op = if (Time.Duration.isPositive(dur)) "+" else "-";
+            let hourStr = if (Int32.abs(hour) < 10) "0${Int32.abs(hour)}" else "${Int32.abs(hour)}";
+            let minuteStr = if (Int32.abs(minute) < 10) "0${Int32.abs(minute)}" else "${Int32.abs(minute)}";
+            "UTC${op}${hourStr}:${minuteStr}"
+    }
 
     pub enum DayOfWeek with Order, Eq, Hash {
         case Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
@@ -68,8 +81,9 @@ pub mod Time2.DateTime {
     pub def getAmPm(dt: DateTime): (Int32, AmPm) = 
         ???
 
-    pub def getZone(dt: DateTime): Int32 = 
-        ???
+    pub def getZone(dt: DateTime): UtcOffset = 
+        let DateTime({zone = z | _ }) = dt;
+        z
 
     pub def getDate(year: Int32, month: Int32, day: Int32): DateTime = 
         ???
