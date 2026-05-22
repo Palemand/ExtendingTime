@@ -50,8 +50,9 @@ pub mod Time2.Clock {
             } with handler Clock {
                 def now(k) = 
                     let nowActual = Clock.now();
-                    let diff = ???;
-                    ???
+                    // let last = Ref.get(lastTime);
+                    let diff = ???; //DateTime.diff(, nowActual); -> Duration
+                    ??? // Flow.add(last, diff) !> Ref.put(lastTime) |> k
             }
         }
 
