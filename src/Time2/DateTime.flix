@@ -205,7 +205,7 @@ pub mod Time2.DateTime {
             milli = milli,
             micro = micro,
             nano = nano,
-            zone = zone
+            zone = zone 
         } = rec;
         recur(year, month, day, hour, minute, second, milli, micro, nano, zone)
 }
