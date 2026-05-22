@@ -1,4 +1,5 @@
 pub mod Time2.DateTime {
+    use Time.Duration
     use Time2.{Flow}
 
     pub enum DateTime({
@@ -11,7 +12,7 @@ pub mod Time2.DateTime {
         milli = Int32,
         micro = Int32,
         nano = Int32,
-        zone = Int32
+        zone = Duration
     })
 
     pub enum DayOfWeek with Order, Eq, Hash {
