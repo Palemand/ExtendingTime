@@ -1,7 +1,12 @@
 pub mod Time2.Clock {
-    use Time2.DateTime.UtcOffset.UtcOffset
+    // rename to calendar effect.
+    // or maybe rename old Clock to SysTime
+
     import java.time.{ZonedDateTime => JZonedDateTime}
+    use Time.Duration
+    use Time2.DateTime.UtcOffset.UtcOffset
     use Time2.Clock
+    use Time2.Flow
     
     @DefaultHandler
     pub def runWithIO(f: Unit -> a \ ef): a \ (ef - Clock) + IO =
@@ -29,4 +34,25 @@ pub mod Time2.Clock {
                 }))
             }
         }
+    
+    pub def withOffset(offset: Duration, f:Unit -> a \ ef): a \ (ef - Clock) + Clock =
+        run {
+            f()
+        } with handler Clock {
+            def now(k) = ??? //run { DateTime.add(Clock.now(), offset) } with Flow.runWithStd
+        }
+
+    pub def withFlow(f: Unit -> a \ ef): a \ (ef - Clock) + Clock = //Flow
+        region rc {
+            let lastTime = Ref.fresh(rc, Clock.now());
+            run {
+                f()
+            } with handler Clock {
+                def now(k) = 
+                    let nowActual = Clock.now();
+                    let diff = ???;
+                    ???
+            }
+        }
+
 }
