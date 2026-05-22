@@ -3,6 +3,16 @@ pub mod TestDateTime {
     use Time.Duration.Duration
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time2.DateTime
+    
+    @Test
+    def isLeapYear01(): Unit \ Assert = 
+        use Time2.DateTime.isLeapYear;
+        Assert.assertTrue(isLeapYear(2020));
+        Assert.assertTrue(isLeapYear(2024));
+        Assert.assertTrue(isLeapYear(2000));
+        Assert.assertTrue(not isLeapYear(1700));
+        Assert.assertTrue(not isLeapYear(2025))
+
     @Test
     pub def testDateTime01(): Unit \ Assert =
         let dt = DateTime.DateTime({
