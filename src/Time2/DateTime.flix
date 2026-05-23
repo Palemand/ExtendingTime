@@ -308,9 +308,8 @@ pub mod Time2.DateTime {
                 let mo1 = mo + 1i64;
                 recur(y, mo1, d1, h, min, s, mil, mic, nan, z)
             } else if (d < 0i64) {
-                let lastMo = if (balancedMo - 1 < 0) { 12 } else {balancedMo - 1};
-                let d1 = (clampToInt32(min = 0, max = 31, d) + getDaysOfMonth(lastMo, y) + 1)
-                |> toInt64;
+                let lastMo = if (balancedMo == 1) { 12 } else {balancedMo - 1};
+                let d1 = d + ((getDaysOfMonth(lastMo, y) + 1) |> toInt64);
                 let mo1 = mo - 1i64;
                 recur(y, mo1, d1, h, min, s, mil, mic, nan, z)
             } else {
@@ -318,12 +317,12 @@ pub mod Time2.DateTime {
                     y, 
                     balancedMo, 
                     d   |> clampToInt32(min = 1, max = 31), 
-                    h   |> clampToInt32(min = 1, max = 24), 
-                    min |> clampToInt32(min = 1, max = 60), 
-                    s   |> clampToInt32(min = 1, max = 60), 
-                    mil |> clampToInt32(min = 1, max = 1000), 
-                    mic |> clampToInt32(min = 1, max = 1000), 
-                    nan |> clampToInt32(min = 1, max = 1000), 
+                    h   |> clampToInt32(min = 0, max = 24), 
+                    min |> clampToInt32(min = 0, max = 60), 
+                    s   |> clampToInt32(min = 0, max = 60), 
+                    mil |> clampToInt32(min = 0, max = 1000), 
+                    mic |> clampToInt32(min = 0, max = 1000), 
+                    nan |> clampToInt32(min = 0, max = 1000), 
                     z
                 )
             }
