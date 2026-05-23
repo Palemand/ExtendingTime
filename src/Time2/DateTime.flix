@@ -1,4 +1,6 @@
 pub mod Time2.DateTime {
+    use Time2.DateTime.UtcOffset.UtcOffset
+    use Time2.DateTime.getDaysOfYear
     use Time2.DateTime.getDaysOfMonth
     use Time2.DateTime.UtcOffset
     use Time.Duration
@@ -163,6 +165,8 @@ pub mod Time2.DateTime {
         use Int32.modulo;
         modulo(year, 4) == 0 and ((not (modulo(year, 100) == 0)) or modulo(year, 400) == 0)
 
+    pub def getDaysOfYear(year: Int32): Int32 = if (isLeapYear(year)) 366 else 365
+
     pub def getDaysOfMonth(month: Int32, year: Int32): Int32 = 
         if (month == 1 or month == 3 or month == 5 or month == 7 or month == 8 or month == 10 or month == 12) {
             31
@@ -233,4 +237,26 @@ pub mod Time2.DateTime {
             zone = zone 
         } = rec;
         recur(year, month, day, hour, minute, second, milli, micro, nano, zone)
+
+
+    pub def difference(dt1: DateTime, dt2: DateTime): Duration \ {} = 
+        let (DateTime(rec1), DateTime(rec2)) = (dt1, dt2);
+        let dnano = (rec1#nano - rec2#nano) |> Int32.toInt64 |> Duration.nanoseconds;
+        let dmicro = (rec1#micro - rec2#micro) |> Duration.microseconds;
+        let dmilli = (rec1#milli - rec2#milli) |> Duration.milliseconds;
+        let dsecond = (rec1#second - rec2#second) |> Duration.seconds;
+        let dminute = (rec1#minute - rec2#minute) |> Duration.minutes;
+        let dhour = (rec1#hour - rec2#hour) |> Duration.hours;
+        let ddays = (rec1#day - rec2#day) |> Duration.days;
+        let dmonth = (rec1#month, rec2#month) 
+        |> match (d1, d2) -> List.range(Int32.min(d1, d2), Int32.max(d1,d2))
+        |> List.foldLeft(accDays -> monthidx -> accDays + getDaysOfMonth(monthidx, rec2#year), 0)
+        |> (x) -> (if (d1 < d2) -1*x else x) |> Duration.days;
+        let dyear = (rec1#year, rec2#year)
+        |> match (y1, y2) -> List.range(Int32.min(y1, y2), Int32.max(y1,y2))
+        |> List.foldLeft(accDays -> year -> accDays + getDaysOfYear(year), 0)
+        |> (x) -> (if (y1 < y2) -1*x else x)  |> Duration.days;
+        let dzone = (rec1#zone, rec2#zone)
+        |> match (UtcOffset(d1), UtcOffset(d2)) -> d1 - d2;
+        dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear + dzone
 }
