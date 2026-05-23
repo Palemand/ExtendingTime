@@ -59,7 +59,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Time.Duration.hours(0))
+            zone = None
         }));
         let exp = DateTime.getDate(2017, 1, 1);
         assertEq(expected = exp, dt)
@@ -77,7 +77,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Time.Duration.hours(0))
+            zone = None
         }));
         let exp = DateTime.getDate(2016, 12, 2);
         assertEq(expected = exp, dt)
@@ -95,7 +95,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Time.Duration.hours(0))
+            zone = None
         }));
         let exp = DateTime.getDate(2016, 3, 3);
         assertEq(expected = exp, dt)
@@ -114,9 +114,9 @@ pub mod TestDateTime {
             milli = ms,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Time.Duration.hours(0))
+            zone = None
         }));
-        let exp = DateTime.getDateTime(2000, 2, 5, 5, 0, 0, 0, 0, 0, UtcOffset(Time.Duration.hours(0)));
+        let exp = DateTime.getDateTime(2000, 2, 5, 5, 0, 0, 0, 0, 0, None);
         assertEq(expected = exp, dt)
 
     @Test
@@ -131,7 +131,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Time.Duration.hours(0))
+            zone = None
         }));
         let exp = DateTime.getDate(2000, 1, 31);
         assertEq(expected = exp, dt)
@@ -148,7 +148,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Time.Duration.hours(0))
+            zone = None
         }));
         let exp = DateTime.getDate(2000, 1, 1);
         assertEq(expected = exp, dt)
@@ -165,7 +165,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.seconds(0))
+            zone = None
         });
         let dt2 = DateTime.DateTime({
             year = 2026, 
@@ -177,7 +177,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.seconds(0))
+            zone = None
         });
         assertEq(expected = Duration.days(-(3653 + 59)), DateTime.difference(dt1, dt2))
 
@@ -194,7 +194,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.seconds(0))
+            zone = None
         });
         let dt2 = DateTime.DateTime({
             year = 2010, 
@@ -206,7 +206,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.seconds(0))
+            zone = None
         });
         assertEq(expected = Duration.days(5693), DateTime.difference(dt1, dt2))
 
@@ -222,7 +222,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.hours(1))
+            zone = Some(UtcOffset(Duration.hours(1)))
         });
         let dt2 = DateTime.DateTime({
             year = 2000, 
@@ -234,7 +234,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.hours(-2))
+            zone = Some(UtcOffset(Duration.hours(-2)))
         });
         assertEq(expected = Duration.hours(3), DateTime.difference(dt1, dt2))
 }
