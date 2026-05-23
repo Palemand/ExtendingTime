@@ -1,11 +1,7 @@
 pub mod Time2.DateTime {
     use Time2.DateTime.getBalancedDateTime
     use Time2.DateTime.UtcOffset.UtcOffset
-    use Time2.DateTime.getDaysOfYear
-    use Time2.DateTime.getDaysOfMonth
-    use Time2.DateTime.UtcOffset
     use Time.Duration
-    use Time2.DateTime.isLeapYear
     use Time2.{Flow}
 
     ///
@@ -95,70 +91,70 @@ pub mod Time2.DateTime {
     } 
 
     ///
-    /// Represents AM and PM on a 12-hour clock.
+    /// Represents AM and PM
     ///
     pub enum AmPm with Order, Eq, Hash {
         case AM, PM
     }
 
     ///
-    /// Returns the value of `dt`s' `hour` field.
+    /// Gets the hours stored in a DateTime
     ///
     pub def getHours(dt: DateTime): Int32 = 
         let DateTime({hour = h | _ }) = dt;
         h
     
     ///
-    /// Returns the value of `dt`s' `minute` field.
+    /// Gets the minutes stored in a DateTime
     ///
     pub def getMinutes(dt: DateTime): Int32 = 
         let DateTime({minute = m | _ }) = dt;
         m
 
     ///
-    /// Returns the value of `dt`s' `second` field.
+    /// Gets the seconds stored in a DateTime
     ///
     pub def getSeconds(dt: DateTime): Int32 = 
         let DateTime({second = s | _ }) = dt;
         s
 
     ///
-    /// Returns the value of `dt`s' `year` field.
+    /// Gets the year stored in a DateTime
     ///
     pub def getYear(dt: DateTime): Int32 = 
         let DateTime({year = y | _ }) = dt;
         y
 
     ///
-    /// Returns the value of `dt`s' `month` field.
+    /// Gets the month stored in a DateTime
     ///
     pub def getMonth(dt: DateTime): Int32 = 
         let DateTime({month = m | _ }) = dt;
         m
 
     ///
-    /// Returns the value of `dt`s' `milli` field.
+    /// Gets the milliseconds stored in a DateTime
     ///
     pub def getMilliseconds(dt: DateTime): Int32 = 
         let DateTime({milli = m | _ }) = dt;
         m
 
     ///
-    /// Returns the value of `dt`s' `micro` field.
+    /// Gets the microseconds stored in a DateTime
     ///
     pub def getMicroseconds(dt: DateTime): Int32 = 
         let DateTime({micro = m | _ }) = dt;
         m
 
     ///
-    /// Returns the value of `dt`s' `nano` field.
+    /// Gets the nanoseconds stored in a DateTime
     ///
     pub def getNanoseconds(dt: DateTime): Int32 = 
         let DateTime({nano = n | _ }) = dt;
         n
     
     ///
-    /// Returns the day of year of the date in `dt`.
+    /// Gets the minutes stored in a DateTime
     ///
     pub def getDayOfYear(dt: DateTime): Int32 = 
         let DateTime(rec) = dt;
@@ -168,7 +164,7 @@ pub mod Time2.DateTime {
         |> List.sum
 
     ///
-    /// Returns the value of `dt`s' `day` field.
+    /// Gets the day of month stored in a DateTime
     ///
     pub def getDayOfMonth(dt: DateTime): Int32 = 
         let DateTime({day = d | _ }) = dt;
