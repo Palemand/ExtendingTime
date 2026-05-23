@@ -5,6 +5,7 @@ pub mod Time2.Clock {
     import java.time.{ZonedDateTime => JZonedDateTime}
     use Time.Duration
     use Time2.DateTime.UtcOffset.UtcOffset
+    use Time2.DateTime
     use Time2.Clock
     use Time2.Flow
     
@@ -44,7 +45,7 @@ pub mod Time2.Clock {
             } with Flow.runWithPure
         }
 
-    pub def withFlow(f: Unit -> a \ ef): a \ (ef - Clock) + Clock = //Flow
+    pub def withFlow(f: Unit -> a \ ef): a \ (ef - Clock) + Clock + Flow =
         region rc {
             let lastTime = Ref.fresh(rc, Clock.now());
             run {
@@ -52,9 +53,9 @@ pub mod Time2.Clock {
             } with handler Clock {
                 def now(k) = 
                     let nowActual = Clock.now();
-                    // let last = Ref.get(lastTime);
-                    let diff = ???; //DateTime.diff(, nowActual); -> Duration
-                    ??? // Flow.add(last, diff) !> Ref.put(lastTime) |> k
+                    let last = Ref.get(lastTime);
+                    let diff = Time2.DateTime.difference(last, nowActual);
+                    Flow.add(last, diff) !> ((x) -> Ref.put(x, lastTime)) |> k
             }
         }
 
