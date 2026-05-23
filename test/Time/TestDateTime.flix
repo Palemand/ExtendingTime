@@ -26,9 +26,9 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Time.Duration.hours(-10) - Time.Duration.minutes(30))
+            zone = Some(UtcOffset(Time.Duration.hours(-10) - Time.Duration.minutes(30)))
         });
-        assertEq(expected = "UTC-10:30", Time2.DateTime.getZone(dt) |> ToString.toString)
+        assertEq(expected = "UTC-10:30", Option.getWithDefault(UtcOffset(Duration(0i64)), Time2.DateTime.getZone(dt)) |> ToString.toString)
 
     @Test
     def testGetDateFromDayOfYear01(): Unit \ Assert + Abort = 
