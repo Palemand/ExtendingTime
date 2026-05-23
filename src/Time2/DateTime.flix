@@ -44,8 +44,8 @@ pub mod Time2.DateTime {
 
     instance ToString[DateTime] {
         pub def toString(x: DateTime): String = 
-            let DateTime(rec1) = x;
-            "${rec1#year}:${rec1#month}:${rec1#day}"
+            let DateTime(rec) = x;
+            "${rec#year}:${rec#month}:${rec#day}:${rec#hour}:${rec#minute}:${rec#second}:${rec#milli}:${rec#micro}:${rec#nano}:${rec#zone}"
     }
     
     instance Order[DateTime] {
@@ -202,34 +202,43 @@ pub mod Time2.DateTime {
                 let (nan1, over) = getModAndOverflow(nan, 1000);
                 let mic1 = mic + over;
                 recur(y, mo, d, h, min, s, mil, mic1, nan1, z)
-            } else if (mic >= 1000) {
+            } else if (mic >= 1000 or mic < 0) {
                 let (mic1, over) = getModAndOverflow(mic, 1000);
                 let mil1 = mil + over;
                 recur(y, mo, d, h, min, s, mil1, mic1, nan, z)
-            } else if (mil >= 1000) {
+            } else if (mil >= 1000 or mil < 0) {
                 let (mil1, over) = getModAndOverflow(mil, 1000);
                 let s1 = s + over;
                 recur(y, mo, d, h, min, s1, mil1, mic, nan, z)
-            } else if (s >= 60) {
+            } else if (s >= 60 or s < 0) {
                 let (s1, over) = getModAndOverflow(s, 60);
                 let min1 = min + over;
                 recur(y, mo, d, h, min1, s1, mil, mic, nan, z)
-            } else if (min >= 60) {
+            } else if (min >= 60 or min < 0) {
                 let (min1, over) = getModAndOverflow(min, 60);
                 let h1 = h + over;
                 recur(y, mo, d, h1, min1, s, mil, mic, nan, z)
-            } else if (h >= 24) {
-                let (h1, over) = getModAndOverflow(min, 24);
+            } else if (h >= 24 or h < 0) {
+                let (h1, over) = getModAndOverflow(h, 24);
                 let d1 = d + over;
                 recur(y, mo, d1, h1, min, s, mil, mic, nan, z)
+            } else if (mo > 12) {
+                let mo1 = mo - 12;
+                let y1 = y + 1;
+                recur(y1, mo1, d, h, min, s, mil, mic, nan, z)
+            } else if (mo < 0) {
+                let mo1 = mo + 12;
+                let y1 = y - 1;
+                recur(y1, mo1, d, h, min, s, mil, mic, nan, z)
             } else if (d > getDaysOfMonth(mo, y)) {
                 let d1 = d - getDaysOfMonth(mo, y);
                 let mo1 = mo + 1;
                 recur(y, mo1, d1, h, min, s, mil, mic, nan, z)
-            } else if (mo >= 12) {
-                let mo1 = mo - 12;
-                let y1 = y + 1;
-                recur(y1, mo1, d, h, min, s, mil, mic, nan, z)
+            } else if (d < 0) {
+                let lastMo = if (mo - 1 < 0) { 12 } else {mo - 1};
+                let d1 = d + getDaysOfMonth(lastMo, y) + 1;
+                let mo1 = mo - 1;
+                recur(y, mo1, d1, h, min, s, mil, mic, nan, z)
             } else {
                 getDateTime(y, mo, d, h, min, s, mil, mic, nan, z)
             }
