@@ -13,6 +13,7 @@ pub mod TestClock {
         assertTrue(rec#milli < 1000);
         assertTrue(rec#second < 60);
         assertTrue(rec#minute < 60)
+    @Test
     pub def testClock02(): Unit \ Assert + IO = 
         region rc {
             let rf = Ref.fresh(rc, 0);
@@ -27,6 +28,7 @@ pub mod TestClock {
                 }
             }
         }
+    @Test
     pub def testWithFlow01(): Unit \ Assert =
         region rc {
             let rf = Ref.fresh(rc, 0);

@@ -6,7 +6,7 @@ pub mod TestFlow {
     @Test
     pub def testAdd01(): Unit \ Assert + Flow =
         let dt = DateTime.getDate(2019, 2, 5);
-        let dur = Duration.days(2);
-        let exp = DateTime.getDate(2019, 2, 7);
+        let dur = Duration.days(1);
+        let exp = DateTime.getDate(2019, 2, 6);
         assertEq(expected = exp, Flow.add(dt, dur))
 }
