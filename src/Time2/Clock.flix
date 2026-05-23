@@ -8,6 +8,11 @@ pub mod Time2.Clock {
     use Time2.Clock
     use Time2.Flow
     
+    ///
+    /// Runs the `Clock` effect of the given function `f`.
+    ///
+    /// In other words, re-interprets the `Clock` effect using the `IO` effect.
+    ///
     @DefaultHandler
     pub def runWithIO(f: Unit -> a \ ef): a \ (ef - Clock) + IO =
         run {
@@ -35,6 +40,9 @@ pub mod Time2.Clock {
             }
         }
     
+    ///
+    /// Middleware that intercepts the `Clock` effect, modifying the flow by adding a constant `offset`.
+    ///
     pub def withOffset(offset: Duration, f:Unit -> a \ ef): a \ (ef - Clock) + Clock =
         run {
             f()
