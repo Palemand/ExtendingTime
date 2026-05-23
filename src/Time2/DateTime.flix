@@ -71,35 +71,35 @@ pub mod Time2.DateTime {
         m
 
     pub def getSeconds(dt: DateTime): Int32 = 
-        let DateTime({second = h | _ }) = dt;
-        h
+        let DateTime({second = s | _ }) = dt;
+        s
 
     pub def getYear(dt: DateTime): Int32 = 
-        let DateTime({year = h | _ }) = dt;
-        h
+        let DateTime({year = y | _ }) = dt;
+        y
 
     pub def getMonth(dt: DateTime): Int32 = 
-        let DateTime({month = h | _ }) = dt;
-        h
+        let DateTime({month = m | _ }) = dt;
+        m
 
     pub def getMilliseconds(dt: DateTime): Int32 = 
-        let DateTime({milli = h | _ }) = dt;
-        h
+        let DateTime({milli = m | _ }) = dt;
+        m
 
     pub def getMicroseconds(dt: DateTime): Int32 = 
-        let DateTime({micro = h | _ }) = dt;
-        h
+        let DateTime({micro = m | _ }) = dt;
+        m
 
     pub def getNanoseconds(dt: DateTime): Int32 = 
-        let DateTime({nano = h | _ }) = dt;
-        h
+        let DateTime({nano = n | _ }) = dt;
+        n
     
     pub def getDayOfYear(dt: DateTime): Int32 = 
         ???
 
     pub def getDayOfMonth(dt: DateTime): Int32 = 
-        let DateTime({day = h | _ }) = dt;
-        h
+        let DateTime({day = d | _ }) = dt;
+        d
 
     pub def getDayOfWeek(dt: DateTime): DayOfWeek = 
         ???
