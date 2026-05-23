@@ -4,7 +4,18 @@ pub mod Time2.Flow {
     use Time2.Flow
 
     def addDuration(dt: DateTime, dur: Duration): DateTime = // barely correct. 
-        ???
+        let drawSize = (Int32.maxValue() - 999) |> Int32.toInt64;
+        def loop(accDt, accDur) = {
+            let DateTime.DateTime(rec) = accDt;
+            let toAdd = Int64.min(drawSize, accDur);
+            let toAdd32 = toAdd |> Int64.clampToInt32(min = 0, max = Int32.maxValue());
+            let dt_ = DateTime.DateTime({nano = rec#nano + toAdd32 | rec})
+            |> DateTime.balanceDateTime;
+            if (accDur != 0i64) loop(dt_, accDur - toAdd) 
+            else (dt_, 0i64)
+        };
+        fst (loop(dt, Duration.toNanos(dur)))
+        
         // use Int64.modulo;
         // let DateTime(rec) = dt;
         // let {
