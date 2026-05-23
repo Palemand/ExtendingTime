@@ -30,7 +30,7 @@ pub mod Time2.Clock {
                     milli = millis,
                     micro = micros,
                     nano = nanos,
-                    zone = jdt.getOffset().getTotalSeconds() |> x -> UtcOffset(Time.Duration.seconds(x))
+                    zone = jdt.getOffset().getTotalSeconds() |> x -> Some(UtcOffset(Time.Duration.seconds(x)))
                 }))
             }
         }

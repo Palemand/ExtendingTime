@@ -17,7 +17,7 @@ pub mod Time2.DateTime {
         milli = Int32,
         micro = Int32,
         nano = Int32,
-        zone = UtcOffset
+        zone = Option[UtcOffset]
     })
 
     pub enum UtcOffset(Duration) with Eq, Order, Hash
@@ -26,6 +26,10 @@ pub mod Time2.DateTime {
         pub def eq(x: DateTime, y: DateTime): Bool = 
             let DateTime(rec1) = x;
             let DateTime(rec2) = y;
+            let sameZone = match (rec1#zone, rec2#zone) {
+                case (Some(z1), Some(z2)) => z1 == z2
+                case _ => true
+            };
             rec1#year == rec2#year and 
             rec1#month == rec2#month and 
             rec1#day == rec2#day and 
@@ -35,7 +39,7 @@ pub mod Time2.DateTime {
             rec1#milli == rec2#milli and 
             rec1#micro == rec2#micro and 
             rec1#nano == rec2#nano and 
-            rec1#zone == rec2#zone  
+            sameZone
     }
 
     instance ToString[DateTime] {
@@ -121,17 +125,17 @@ pub mod Time2.DateTime {
             (h, AmPm.PM)
         }
 
-    pub def getZone(dt: DateTime): UtcOffset = 
+    pub def getZone(dt: DateTime): Option[UtcOffset] = 
         let DateTime({zone = z | _ }) = dt;
         z
 
     pub def getDate(year: Int32, month: Int32, day: Int32): DateTime = 
-        getDateTime(year, month, day, 0, 0, 0, 0, 0, 0, UtcOffset.UtcOffset(Duration(0i64)))
+        getDateTime(year, month, day, 0, 0, 0, 0, 0, 0, None)
 
     pub def getDateTime(
         year: Int32, month: Int32, day: Int32, 
         hours: Int32, minutes: Int32, seconds: Int32, 
-        milli: Int32, micro: Int32, nano: Int32, zone: UtcOffset): DateTime = 
+        milli: Int32, micro: Int32, nano: Int32, zone: Option[UtcOffset]): DateTime = 
         let rec1 = {
             year = year, 
             month = month,
@@ -166,7 +170,7 @@ pub mod Time2.DateTime {
         let m = getMonthFromDayOfYear(dayOfYear, year);
         let s = List.range(1, m) |> List.map(x -> getDaysOfMonth(x, year)) |> List.sum;
         let d = dayOfYear - s;
-        Some(getDateTime(year, m, d, 0, 0, 0, 0, 0, 0, UtcOffset.UtcOffset(Duration(0i64))))
+        Some(getDateTime(year, m, d, 0, 0, 0, 0, 0, 0, None))
 
     pub def isLeapYear(year: Int32): Bool = 
         use Int32.modulo;
