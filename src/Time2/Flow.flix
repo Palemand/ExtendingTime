@@ -1,5 +1,4 @@
 pub mod Time2.Flow {
-    use Time2.DateTime.getDateTime
     use Time.Duration
     use Time2.DateTime
     use Time2.Flow
@@ -42,8 +41,8 @@ pub mod Time2.Flow {
             Ref.transform(x -> x / 24i64, nanoRef);
             let day1 = Ref.get(nanoRef);
             let dayOfYear = Time2.DateTime.getDayOfYear(dt);
-            let dt1 = Time2.DateTime.getDateFromDayOfYear(dayOfYear + Option.getWithDefault(unreachable!(), Int64.tryToInt32(day1))); // might be wonky
-            getDateTime(
+            let dt1 = Time2.DateTime.getDateFromDayOfYear(dayOfYear + Option.getWithDefault(unreachable!(), Int64.tryToInt32(day1)), year); // might be wonky
+            let _ = Time2.DateTime.getDateTime(
                 year + Time2.DateTime.getYear(dt1),
                 month + Time2.DateTime.getMonth(dt1),
                 day + Time2.DateTime.getDayOfMonth(dt1),
@@ -54,7 +53,8 @@ pub mod Time2.Flow {
                 micro + Int64.clampToInt32(min = 0, max = 1000, micro1),
                 nano + Int64.clampToInt32(min = 0, max = 1000, nano1), 
                 zone
-            )
+            );
+            ???
         }
 
     @DefaultHandler

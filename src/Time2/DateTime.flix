@@ -1,4 +1,5 @@
 pub mod Time2.DateTime {
+    use Time2.DateTime.getDaysOfMonth
     use Time2.DateTime.UtcOffset
     use Time.Duration
     use Time2.DateTime.isLeapYear
@@ -18,6 +19,29 @@ pub mod Time2.DateTime {
     })
 
     pub enum UtcOffset(Duration) with Eq, Order, Hash
+
+    instance Eq[DateTime] {
+        pub def eq(x: DateTime, y: DateTime): Bool = 
+            let DateTime(rec1) = x;
+            let DateTime(rec2) = y;
+            rec1#year == rec2#year and 
+            rec1#month == rec2#month and 
+            rec1#day == rec2#day and 
+            rec1#hour == rec2#hour and 
+            rec1#minute == rec2#minute and 
+            rec1#second == rec2#second and 
+            rec1#milli == rec2#milli and 
+            rec1#micro == rec2#micro and 
+            rec1#nano == rec2#nano and 
+            rec1#zone == rec2#zone  
+    }
+
+    instance ToString[DateTime] {
+        pub def toString(x: DateTime): String = 
+            let DateTime(rec1) = x;
+            "${rec1#year}:${rec1#month}:${rec1#day}"
+    }
+    
 
     instance ToString[UtcOffset] {
         pub def toString(x: UtcOffset): String = 
@@ -93,60 +117,61 @@ pub mod Time2.DateTime {
         z
 
     pub def getDate(year: Int32, month: Int32, day: Int32): DateTime = 
-        let dt = DateTime({
-            year = year, 
-            month = month,
-            day = day,
-            hour = 0, 
-            minute = 0,
-            second = 0,
-            milli = 0,
-            micro = 0,
-            nano = 0,
-            zone = UtcOffset.UtcOffset(Duration.hours(0)) //skal ændres til None efter refactor af UtcOffset
-        });
-        dt
+        getDateTime(year, month, day, 0, 0, 0, 0, 0, 0, UtcOffset.UtcOffset(Duration(0i64)))
 
     pub def getDateTime(
         year: Int32, month: Int32, day: Int32, 
         hours: Int32, minutes: Int32, seconds: Int32, 
         milli: Int32, micro: Int32, nano: Int32, zone: UtcOffset): DateTime = 
-        ???
+        let rec1 = {
+            year = year, 
+            month = month,
+            day = day,
+            hour = hours, 
+            minute = minutes,
+            second = seconds,
+            milli = milli,
+            micro = micro,
+            nano = nano,
+            zone = zone   
+        };
+        DateTime(rec1)
 
-    pub def getDateFromDayOfYear(dayOfYear: Int32): DateTime = 
-        ???
+    def getMonthFromDayOfYear(dayOfYear: Int32, year: Int32): Int32 \ {} = 
+        def recur(doy, m) = {
+            let dm = getDaysOfMonth(m, year);
+            if (doy > dm) {
+                recur(doy - dm, m + 1)
+            } else {
+                m
+            }
+        };
+        if ((dayOfYear > 366 and isLeapYear(year)) or (dayOfYear > 365 and (not isLeapYear(year))) or dayOfYear < 1) {
+            0
+        } else {
+            recur(dayOfYear, 1)
+        }
+
+    pub def getDateFromDayOfYear(dayOfYear: Int32, year: Int32): Option[DateTime] \ {} = 
+        if ((dayOfYear > 366 and isLeapYear(year)) or (dayOfYear > 365 and (not isLeapYear(year))) or dayOfYear < 1) { None } else 
+        let m = getMonthFromDayOfYear(dayOfYear, year);
+        let s = List.range(1, m) |> List.map(x -> getDaysOfMonth(x, year)) |> List.sum;
+        let d = dayOfYear - s;
+        Some(getDateTime(year, m, d, 0, 0, 0, 0, 0, 0, UtcOffset.UtcOffset(Duration(0i64))))
 
     pub def isLeapYear(year: Int32): Bool = 
         use Int32.modulo;
         modulo(year, 4) == 0 and ((not (modulo(year, 100) == 0)) or modulo(year, 400) == 0)
 
     pub def getDaysOfMonth(month: Int32, year: Int32): Int32 = 
-        if (month == 1) {
+        if (month == 1 or month == 3 or month == 5 or month == 7 or month == 8 or month == 10 or month == 12) {
             31
+        } else if (month == 4 or month == 6 or month == 9 or month == 11) {
+            30
         } else if (month == 2 and isLeapYear(year)) {
             29
         } else if (month == 2) {
             28
-        } else if (month == 3) {
-            31
-        } else if (month == 4) {
-            30
-        } else if (month == 5) {
-            31
-        } else if (month == 6) {
-            30
-        } else if (month == 7) {
-            31
-        } else if (month == 8) {
-            31
-        } else if (month == 9) {
-            30
-        } else if (month == 10) {
-            31
-        } else if (month == 11) {
-            30
-        } else if (month == 12) {
-            31
         } else {
             0
         }
@@ -205,7 +230,7 @@ pub mod Time2.DateTime {
             milli = milli,
             micro = micro,
             nano = nano,
-            zone = zone
+            zone = zone 
         } = rec;
         recur(year, month, day, hour, minute, second, milli, micro, nano, zone)
 }
