@@ -19,8 +19,7 @@ pub mod Time2.Flow {
             rec#micro |> toInt64,
             Duration.toNanos(dur),
             rec#zone);
-        let dt_ = DateTime.DateTime({nano = rec_#nano + oNano | rec_ }) |> Time2.DateTime.balanceDateTime;
-        dt_
+        DateTime.DateTime({nano = rec_#nano + oNano | rec_ }) |> Time2.DateTime.balanceDateTime
         // let drawSize = (Int32.maxValue() - 999) |> Int32.toInt64;
         // def loop(accDt, accDur) = {
         //     let DateTime.DateTime(rec) = accDt;
