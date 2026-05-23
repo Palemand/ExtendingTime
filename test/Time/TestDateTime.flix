@@ -1,5 +1,7 @@
 pub mod TestDateTime {
-    use Assert.assertEq
+    use Time2.DateTime.getDate
+    use Time2.DateTime.{getDateFromDayOfYear}
+    use Assert.{assertEq, assertEqWithMsg, assertNone}
     use Time.Duration.Duration
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time2.DateTime
@@ -28,4 +30,21 @@ pub mod TestDateTime {
             zone = UtcOffset(Time.Duration.hours(-10) - Time.Duration.minutes(30))
         });
         assertEq(expected = "UTC-10:30", Time2.DateTime.getZone(dt) |> ToString.toString)
+
+    @Test
+    def testGetDateFromDayOfYear01(): Unit \ Assert + Abort = 
+        let dt = getDateFromDayOfYear(10, 2000);
+        let exp = getDate(2000, 1, 10);
+        assertEq(expected = exp, Option.getOrAbort(dt))
+
+    @Test
+    def testGetDateFromDayOfYear02(): Unit \ Assert + Abort = 
+        let dt = getDateFromDayOfYear(366, 2004);
+        let exp = getDate(2004, 12, 31);
+        assertEq(expected = exp, Option.getOrAbort(dt))
+
+    @Test
+    def testGetDateFromDayOfYear03(): Unit \ Assert = 
+        let dt = getDateFromDayOfYear(700, 2004);
+        assertNone(dt)
 }
