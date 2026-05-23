@@ -44,6 +44,13 @@ pub mod Time2.DateTime {
             "${rec1#year}:${rec1#month}:${rec1#day}"
     }
     
+    instance Order[DateTime] {
+        pub def compare(dt1: DateTime, dt2: DateTime): Comparison =
+            let diff = difference(dt1, dt2);
+            if (diff < Duration.zero()) Comparison.LessThan
+            else if (diff == Duration.zero()) Comparison.EqualTo
+            else Comparison.GreaterThan
+    }
 
     instance ToString[UtcOffset] {
         pub def toString(x: UtcOffset): String = 
