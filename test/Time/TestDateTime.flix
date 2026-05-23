@@ -1,10 +1,9 @@
 pub mod TestDateTime {
-    use Time2.DateTime.getDate
-    use Time2.DateTime.{getDateFromDayOfYear}
     use Assert.{assertEq, assertEqWithMsg, assertNone}
-    use Time.Duration.Duration
+    use Time2.DateTime.{getDateFromDayOfYear, getDate}
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time2.DateTime
+    use Time.Duration.Duration
     
     @Test
     def isLeapYear01(): Unit \ Assert = 
@@ -47,6 +46,112 @@ pub mod TestDateTime {
     def testGetDateFromDayOfYear03(): Unit \ Assert = 
         let dt = getDateFromDayOfYear(700, 2004);
         assertNone(dt)
+
+    @Test
+    def testBalanceDate01(): Unit \ Assert = 
+        let dt = DateTime.balanceDateTime(DateTime.DateTime({
+            year = 2016, 
+            month = 13,
+            day = 1,
+            hour = 0, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = None
+        }));
+        let exp = DateTime.getDate(2017, 1, 1);
+        assertEq(expected = exp, dt)
+
+    @Test
+    def testBalanceDate02(): Unit \ Assert + Abort = 
+        let ns = Option.getOrAbort(Int64.tryToInt32(Time.Duration.toSeconds(Time.Duration.days(1))));
+        let dt = DateTime.balanceDateTime(DateTime.DateTime({
+            year = 2016, 
+            month = 12,
+            day = 1,
+            hour = 0, 
+            minute = 0,
+            second = ns,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = None
+        }));
+        let exp = DateTime.getDate(2016, 12, 2);
+        assertEq(expected = exp, dt)
+
+    @Test
+    def testBalanceDate03(): Unit \ Assert + Abort = 
+        let ns = Option.getOrAbort(Int64.tryToInt32(Time.Duration.toSeconds(Time.Duration.days(5))));
+        let dt = DateTime.balanceDateTime(DateTime.DateTime({
+            year = 2016, 
+            month = 2,
+            day = 27,
+            hour = 0, 
+            minute = 0,
+            second = ns,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = None
+        }));
+        let exp = DateTime.getDate(2016, 3, 3);
+        assertEq(expected = exp, dt)
+
+    @Test
+    def testBalanceDate04(): Unit \ Assert + Abort = 
+        let ns = Option.getOrAbort(Int64.tryToInt32(Time.Duration.toSeconds(Time.Duration.days(5))));
+        let ms = Option.getOrAbort(Int64.tryToInt32(Time.Duration.toMillis(Time.Duration.hours(5))));
+        let dt = DateTime.balanceDateTime(DateTime.DateTime({
+            year = 2000, 
+            month = 1,
+            day = 31,
+            hour = 0, 
+            minute = 0,
+            second = ns,
+            milli = ms,
+            micro = 0,
+            nano = 0,
+            zone = None
+        }));
+        let exp = DateTime.getDateTime(2000, 2, 5, 5, 0, 0, 0, 0, 0, None);
+        assertEq(expected = exp, dt)
+
+    @Test
+    def testBalanceDate05(): Unit \ Assert = 
+        let dt = DateTime.balanceDateTime(DateTime.DateTime({
+            year = 2000, 
+            month = 2,
+            day = -1,
+            hour = 0, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = None
+        }));
+        let exp = DateTime.getDate(2000, 1, 31);
+        assertEq(expected = exp, dt)
+
+    @Test
+    def testBalanceDate06(): Unit \ Assert = 
+        let dt = DateTime.balanceDateTime(DateTime.DateTime({
+            year = 2000, 
+            month = 2,
+            day = -31,
+            hour = 0, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = None
+        }));
+        let exp = DateTime.getDate(2000, 1, 1);
+        assertEq(expected = exp, dt)
     
     @Test
     pub def testDifference01(): Unit \ Assert =
@@ -60,7 +165,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.seconds(0))
+            zone = None
         });
         let dt2 = DateTime.DateTime({
             year = 2026, 
@@ -72,7 +177,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.seconds(0))
+            zone = None
         });
         assertEq(expected = Duration.days(-(3653 + 59)), DateTime.difference(dt1, dt2))
 
@@ -89,7 +194,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.seconds(0))
+            zone = None
         });
         let dt2 = DateTime.DateTime({
             year = 2010, 
@@ -101,7 +206,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.seconds(0))
+            zone = None
         });
         assertEq(expected = Duration.days(5693), DateTime.difference(dt1, dt2))
 
@@ -117,7 +222,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.hours(1))
+            zone = Some(UtcOffset(Duration.hours(1)))
         });
         let dt2 = DateTime.DateTime({
             year = 2000, 
@@ -129,7 +234,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = UtcOffset(Duration.hours(-2))
+            zone = Some(UtcOffset(Duration.hours(-2)))
         });
         assertEq(expected = Duration.hours(3), DateTime.difference(dt1, dt2))
 }
