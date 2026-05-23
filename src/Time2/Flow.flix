@@ -73,4 +73,25 @@ pub mod Time2.Flow {
             def add(dt, dur, k) = 
                 k(addDuration(dt, dur))
         }
+
+    pub def withMultiplier(m: Int64, f: Unit -> a \ ef): a \ (ef - Flow) + Flow = 
+        run {
+            f()
+        } with handler Flow {
+            def add(dt, dur, k) = 
+                let Time.Duration(d) = dur;
+                let newDur = Time.Duration(d * m);
+                k(add(dt, newDur))
+        }
+
+    pub def withModification(m: Int64 -> Int64 \ ef1, f: Unit -> a \ ef2): a \ ((ef1 + ef2) - Flow) + Flow = 
+        run {
+            f()
+        } with handler Flow {
+            def add(dt, dur, k) = 
+                let Time.Duration(d) = dur;
+                let newDur = Time.Duration(m(d));
+                k(add(dt, newDur))
+        }
+
 }
