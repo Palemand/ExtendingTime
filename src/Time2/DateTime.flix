@@ -333,4 +333,6 @@ pub mod Time2.DateTime {
             case _ => Duration(0i64)
         };
         dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear + dzone
+    pub def epochTime(): DateTime = 
+        Time2.DateTime.getDateTime(1970, 1, 1, 0, 0, 0, 0, 0, 0, None)
 }
