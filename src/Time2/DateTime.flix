@@ -267,7 +267,9 @@ pub mod Time2.DateTime {
         |> match (y1, y2) -> List.range(Int32.min(y1, y2), Int32.max(y1,y2))
         |> List.foldLeft(accDays -> year -> accDays + getDaysOfYear(year), 0)
         |> (x) -> (if (y1 < y2) -1*x else x)  |> Duration.days;
-        let dzone = (rec1#zone, rec2#zone)
-        |> match (UtcOffset(d1), UtcOffset(d2)) -> d1 - d2;
+        let dzone = match (rec1#zone, rec2#zone) {
+            case (Some(UtcOffset(d1)), Some(UtcOffset(d2))) => d1 - d2
+            case _ => Duration(0i64)
+        };
         dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear + dzone
 }
