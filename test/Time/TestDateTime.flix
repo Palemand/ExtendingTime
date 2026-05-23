@@ -1,8 +1,9 @@
 pub mod TestDateTime {
     use Assert.{assertEq, assertEqWithMsg, assertNone}
-    use Time2.DateTime.{getDateFromDayOfYear, getDate}
+    use Time2.DateTime.{getDateFromDayOfYear, getDate, getDayOfWeek}
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time2.DateTime
+    use Time2.DateTime.DayOfWeek.{Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday}
     use Time.Duration.Duration
     
     @Test
@@ -237,4 +238,33 @@ pub mod TestDateTime {
             zone = Some(UtcOffset(Duration.hours(-2)))
         });
         assertEq(expected = Duration.hours(3), DateTime.difference(dt1, dt2))
+
+    @Test
+    def getDayOfWeek01(): Unit \ Assert = 
+        let dt1 = getDate(2026, 5, 23);
+        let weekday = getDayOfWeek(dt1);
+        assertEq(expected = Saturday, weekday)
+
+    @Test
+    def getDayOfWeek02(): Unit \ Assert = 
+        getDate(2026, 5, 18) |> getDayOfWeek |> assertEq(expected = Monday);
+        getDate(2026, 5, 19) |> getDayOfWeek |> assertEq(expected = Tuesday);
+        getDate(2026, 5, 20) |> getDayOfWeek |> assertEq(expected = Wednesday);
+        getDate(2026, 5, 21) |> getDayOfWeek |> assertEq(expected = Thursday);
+        getDate(2026, 5, 22) |> getDayOfWeek |> assertEq(expected = Friday);
+        getDate(2026, 5, 23) |> getDayOfWeek |> assertEq(expected = Saturday);
+        getDate(2026, 5, 24) |> getDayOfWeek |> assertEq(expected = Sunday);
+        getDate(2026, 5, 25) |> getDayOfWeek |> assertEq(expected = Monday)
+
+    @Test
+    pub def getDayOfWeek03(): Unit \ Assert = 
+        let dt1 = getDate(2058, 2, 3);
+        let weekday = getDayOfWeek(dt1);
+        assertEq(expected = Sunday, weekday)
+
+    @Test
+    def getDayOfWeek04(): Unit \ Assert = 
+        let dt1 = getDate(1900, 12, 31);
+        let weekday = getDayOfWeek(dt1);
+        assertEq(expected = Monday, weekday)
 }

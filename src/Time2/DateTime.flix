@@ -1,5 +1,4 @@
 pub mod Time2.DateTime {
-    import java.time.DayOfWeek
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time2.DateTime.getDaysOfYear
     use Time2.DateTime.getDaysOfMonth
@@ -68,6 +67,19 @@ pub mod Time2.DateTime {
             "UTC${op}${hourStr}:${minuteStr}"
     }
 
+    instance ToString[DayOfWeek] {
+        pub def toString(x: DayOfWeek): String = match x {
+            case DayOfWeek.Monday => "Monday"
+            case DayOfWeek.Tuesday => "Tuesday"
+            case DayOfWeek.Wednesday => "Wednesday"
+            case DayOfWeek.Thursday => "Thursday"
+            case DayOfWeek.Friday => "Friday"
+            case DayOfWeek.Sunday => "Sunday"
+            case DayOfWeek.Saturday => "Saturday"
+        }
+    
+    }
+
     pub enum DayOfWeek with Order, Eq, Hash {
         case Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
     } 
@@ -119,18 +131,18 @@ pub mod Time2.DateTime {
         let DateTime({day = d | _ }) = dt;
         d
 
-    pub def getDayOfWeek(dt: DateTime): DayOfWeek \ IO = 
+    pub def getDayOfWeek(dt: DateTime): DayOfWeek \ {} = 
         let ref = getDate(2026, 5, 25); // monday
         let diff = difference(dt, ref) |> Duration.toDays;
-        let dayDiff = Int64.modulo(diff, 7i64) !> println |>  Int64.clampToInt32(min = -7, max = 7);
+        let dayDiff = Int64.modulo(diff, 7i64) |>  Int64.clampToInt32(min = 0, max = 6);
         match dayDiff {
-            case 0 => DayOfWeek.MONDAY
-            case 1 => DayOfWeek.TUESDAY
-            case 2 => DayOfWeek.WEDNESDAY
-            case 3 => DayOfWeek.THURSDAY
-            case 4 => DayOfWeek.FRIDAY
-            case 5 => DayOfWeek.SATURDAY
-            case 6 => DayOfWeek.SUNDAY
+            case 0 => DayOfWeek.Monday
+            case 1 => DayOfWeek.Tuesday
+            case 2 => DayOfWeek.Wednesday
+            case 3 => DayOfWeek.Thursday
+            case 4 => DayOfWeek.Friday
+            case 5 => DayOfWeek.Saturday
+            case 6 => DayOfWeek.Sunday
             case _ => unreachable!()
         }
 
