@@ -161,21 +161,44 @@ pub mod Time2.DateTime {
     pub def getDate(year: Int32, month: Int32, day: Int32): DateTime = 
         getDateTime(year, month, day, 0, 0, 0, 0, 0, 0, None)
 
+    def clamp(min: {min = Int32}, max: {max = Int32}, x: Int32): Int32 = 
+        if (x < min#min) {
+            min#min
+        } else if (x > max#max) {
+            max#max
+        } else {
+            x
+        }
+
+    def clampInt64(min: {min = Int64}, max: {max = Int64}, x: Int64): Int64 = 
+        if (x < min#min) {
+            min#min
+        } else if (x > max#max) {
+            max#max
+        } else {
+            x
+        }
+
     pub def getDateTime(
         year: Int32, month: Int32, day: Int32, 
         hours: Int32, minutes: Int32, seconds: Int32, 
         milli: Int32, micro: Int32, nano: Int32, zone: Option[UtcOffset]): DateTime = 
+        let mo = month |> clamp(min = 1, max = 12);
+        let z = match zone {
+            case None => None
+            case Some(UtcOffset(Duration(s))) => Some(UtcOffset(Duration(clampInt64(min = -12i64, max = 14i64, s))))
+        };
         let rec1 = {
             year = year, 
-            month = month,
-            day = day,
-            hour = hours, 
-            minute = minutes,
-            second = seconds,
-            milli = milli,
-            micro = micro,
-            nano = nano,
-            zone = zone   
+            month = mo,
+            day = day |> clamp(min = 1, max = getDaysOfMonth(mo, year)),
+            hour = hours |> clamp(min = 1, max = 24), 
+            minute = minutes |> clamp(min = 1, max = 60),
+            second = seconds |> clamp(min = 1, max = 60),
+            milli = milli |> clamp(min = 1, max = 1000),
+            micro = micro |> clamp(min = 1, max = 1000),
+            nano = nano |> clamp(min = 1, max = 1000),
+            zone = z
         };
         DateTime(rec1)
 
