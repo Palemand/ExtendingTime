@@ -1,6 +1,6 @@
 pub mod TestDateTime {
     use Assert.{assertEq, assertEqWithMsg, assertNone}
-    use Time2.DateTime.{getDateFromDayOfYear, getDate, getDayOfWeek}
+    use Time2.DateTime.{getDateFromDayOfYear, getDate, getDayOfWeek, getDayOfYear}
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time2.DateTime
     use Time2.DateTime.DayOfWeek.{Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday}
@@ -267,4 +267,22 @@ pub mod TestDateTime {
         let dt1 = getDate(1900, 12, 31);
         let weekday = getDayOfWeek(dt1);
         assertEq(expected = Monday, weekday)
+
+    @Test
+    def getDayOfYear01(): Unit \ Assert = 
+        let dt1 = getDate(2024, 12, 31);
+        let dayOfYear = getDayOfYear(dt1);
+        assertEq(expected = 366, dayOfYear)
+
+    @Test
+    def getDayOfYear02(): Unit \ Assert = 
+        let dt1 = getDate(2025, 12, 31);
+        let dayOfYear = getDayOfYear(dt1);
+        assertEq(expected = 365, dayOfYear)
+
+    @Test
+    def getDayOfYear03(): Unit \ Assert = 
+        let dt1 = getDate(2025, 1, 1);
+        let dayOfYear = getDayOfYear(dt1);
+        assertEq(expected = 1, dayOfYear)
 }
