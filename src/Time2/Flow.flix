@@ -66,4 +66,11 @@ pub mod Time2.Flow {
                 k(addDuration(dt, dur))
         }
 
+    pub def runWithPure(f: Unit -> a \ ef): a \ ef - Flow = 
+        run {
+            f()
+        } with handler Flow {
+            def add(dt, dur, k) = 
+                k(addDuration(dt, dur))
+        }
 }

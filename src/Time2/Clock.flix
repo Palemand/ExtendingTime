@@ -39,7 +39,9 @@ pub mod Time2.Clock {
         run {
             f()
         } with handler Clock {
-            def now(k) = ??? //run { DateTime.add(Clock.now(), offset) } with Flow.runWithStd
+            def now(k) = run {
+                k(Flow.add(Clock.now(), offset))
+            } with Flow.runWithPure
         }
 
     pub def withFlow(f: Unit -> a \ ef): a \ (ef - Clock) + Clock = //Flow
