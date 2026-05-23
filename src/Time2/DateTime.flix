@@ -67,6 +67,19 @@ pub mod Time2.DateTime {
             "UTC${op}${hourStr}:${minuteStr}"
     }
 
+    instance ToString[DayOfWeek] {
+        pub def toString(x: DayOfWeek): String = match x {
+            case DayOfWeek.Monday => "Monday"
+            case DayOfWeek.Tuesday => "Tuesday"
+            case DayOfWeek.Wednesday => "Wednesday"
+            case DayOfWeek.Thursday => "Thursday"
+            case DayOfWeek.Friday => "Friday"
+            case DayOfWeek.Sunday => "Sunday"
+            case DayOfWeek.Saturday => "Saturday"
+        }
+    
+    }
+
     pub enum DayOfWeek with Order, Eq, Hash {
         case Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
     } 
@@ -108,14 +121,30 @@ pub mod Time2.DateTime {
         n
     
     pub def getDayOfYear(dt: DateTime): Int32 = 
-        ???
+        let DateTime(rec) = dt;
+        List.range(1, rec#month) 
+        |> List.map(m -> getDaysOfMonth(m, rec#year))
+        |> List.cons(rec#day)
+        |> List.sum
 
     pub def getDayOfMonth(dt: DateTime): Int32 = 
         let DateTime({day = d | _ }) = dt;
         d
 
-    pub def getDayOfWeek(dt: DateTime): DayOfWeek = 
-        ???
+    pub def getDayOfWeek(dt: DateTime): DayOfWeek \ {} = 
+        let ref = getDate(2026, 5, 25); // monday
+        let diff = difference(dt, ref) |> Duration.toDays;
+        let dayDiff = Int64.modulo(diff, 7i64) |>  Int64.clampToInt32(min = 0, max = 6);
+        match dayDiff {
+            case 0 => DayOfWeek.Monday
+            case 1 => DayOfWeek.Tuesday
+            case 2 => DayOfWeek.Wednesday
+            case 3 => DayOfWeek.Thursday
+            case 4 => DayOfWeek.Friday
+            case 5 => DayOfWeek.Saturday
+            case 6 => DayOfWeek.Sunday
+            case _ => unreachable!()
+        }
 
     pub def getAmPm(dt: DateTime): (Int32, AmPm) = 
         let DateTime({ hour = h | _ }) = dt;
