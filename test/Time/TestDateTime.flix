@@ -47,4 +47,89 @@ pub mod TestDateTime {
     def testGetDateFromDayOfYear03(): Unit \ Assert = 
         let dt = getDateFromDayOfYear(700, 2004);
         assertNone(dt)
+    
+    @Test
+    pub def testDifference01(): Unit \ Assert =
+        let dt1 = DateTime.DateTime({
+            year = 2016, 
+            month = 1,
+            day = 1,
+            hour = 0, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = UtcOffset(Duration.seconds(0))
+        });
+        let dt2 = DateTime.DateTime({
+            year = 2026, 
+            month = 3,
+            day = 1,
+            hour = 0, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = UtcOffset(Duration.seconds(0))
+        });
+        assertEq(expected = Duration.days(-(3653 + 59)), DateTime.difference(dt1, dt2))
+
+
+    @Test
+    pub def testDifference02(): Unit \ Assert =
+        let dt1 = DateTime.DateTime({
+            year = 2025, 
+            month = 10,
+            day = 1,
+            hour = 0, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = UtcOffset(Duration.seconds(0))
+        });
+        let dt2 = DateTime.DateTime({
+            year = 2010, 
+            month = 3,
+            day = 1,
+            hour = 0, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = UtcOffset(Duration.seconds(0))
+        });
+        assertEq(expected = Duration.days(5693), DateTime.difference(dt1, dt2))
+
+    @Test
+    pub def testDifference03(): Unit \ Assert =
+        let dt1 = DateTime.DateTime({
+            year = 2000, 
+            month = 1,
+            day = 1,
+            hour = 0, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = UtcOffset(Duration.hours(1))
+        });
+        let dt2 = DateTime.DateTime({
+            year = 2000, 
+            month = 1,
+            day = 1,
+            hour = 0, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = UtcOffset(Duration.hours(-2))
+        });
+        assertEq(expected = Duration.hours(3), DateTime.difference(dt1, dt2))
 }
