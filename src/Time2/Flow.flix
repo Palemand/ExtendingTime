@@ -69,6 +69,11 @@ pub mod Time2.Flow {
         //     ???
         // }
 
+    ///
+    /// Runs the `Flow` effect of the given function `f`.
+    ///
+    /// In other words, re-interprets the `Flow` effect using the `IO` effect.
+    ///
     @DefaultHandler
     pub def runWithIO(f: Unit -> a \ ef): a \ (ef - Flow) + IO =
         run {
@@ -78,6 +83,11 @@ pub mod Time2.Flow {
                 k(addDuration(dt, dur))
         }
 
+    ///
+    /// Runs the `Flow` effect of the given function `f`.
+    ///
+    /// In other words, re-interprets the `Flow` effect without adding an effect.
+    ///
     pub def runWithPure(f: Unit -> a \ ef): a \ ef - Flow = 
         run {
             f()
@@ -86,6 +96,9 @@ pub mod Time2.Flow {
                 k(addDuration(dt, dur))
         }
 
+    ///
+    /// Middleware that intercepts the `Flow` effect, modifying the flow by multiplying it with `m`.
+    ///
     pub def withMultiplier(m: Int64, f: Unit -> a \ ef): a \ (ef - Flow) + Flow = 
         run {
             f()
@@ -96,6 +109,9 @@ pub mod Time2.Flow {
                 k(add(dt, newDur))
         }
 
+    ///
+    /// Middleware that intercepts the `Flow` effect, modifying the flow by applying `m` to it.
+    ///
     pub def withModification(m: Int64 -> Int64 \ ef1, f: Unit -> a \ ef2): a \ ((ef1 + ef2) - Flow) + Flow = 
         run {
             f()
