@@ -1,20 +1,36 @@
 pub mod Time2.Flow {
+    use Time2.DateTime.getBalancedDateTime
     use Time.Duration
     use Time2.DateTime
     use Time2.Flow
 
     def addDuration(dt: DateTime, dur: Duration): DateTime = // barely correct. 
-        let drawSize = (Int32.maxValue() - 999) |> Int32.toInt64;
-        def loop(accDt, accDur) = {
-            let DateTime.DateTime(rec) = accDt;
-            let toAdd = Int64.min(drawSize, accDur);
-            let toAdd32 = toAdd |> Int64.clampToInt32(min = 0, max = Int32.maxValue());
-            let dt_ = DateTime.DateTime({nano = rec#nano + toAdd32 | rec})
-            |> DateTime.balanceDateTime;
-            if (accDur != 0i64) loop(dt_, accDur - toAdd) 
-            else (dt_, 0i64)
-        };
-        fst (loop(dt, Duration.toNanos(dur)))
+        use Int32.toInt64;
+        let DateTime.DateTime(rec) = dt;
+        let oNano = rec#nano;
+        let DateTime.DateTime(rec_) = getBalancedDateTime(
+            rec#year |> toInt64,
+            rec#month |> toInt64,
+            rec#day |> toInt64,
+            rec#hour |> toInt64, 
+            rec#minute |> toInt64,
+            rec#second |> toInt64,
+            rec#milli |> toInt64,
+            rec#micro |> toInt64,
+            Duration.toNanos(dur),
+            rec#zone);
+        DateTime.DateTime({nano = rec_#nano + oNano | rec_ }) |> Time2.DateTime.balanceDateTime
+        // let drawSize = (Int32.maxValue() - 999) |> Int32.toInt64;
+        // def loop(accDt, accDur) = {
+        //     let DateTime.DateTime(rec) = accDt;
+        //     let toAdd = Int64.min(drawSize, accDur);
+        //     let toAdd32 = toAdd |> Int64.clampToInt32(min = 0, max = Int32.maxValue());
+        //     let dt_ = DateTime.DateTime({nano = rec#nano + toAdd32 | rec})
+        //     |> DateTime.balanceDateTime;
+        //     if (accDur != 0i64) loop(dt_, accDur - toAdd) 
+        //     else (dt_, 0i64)
+        // };
+        // fst (loop(dt, Duration.toNanos(dur)))
         
         // use Int64.modulo;
         // let DateTime(rec) = dt;
