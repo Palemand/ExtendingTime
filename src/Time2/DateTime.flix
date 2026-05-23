@@ -1,4 +1,5 @@
 pub mod Time2.DateTime {
+    import java.time.DayOfWeek
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time2.DateTime.getDaysOfYear
     use Time2.DateTime.getDaysOfMonth
@@ -108,14 +109,30 @@ pub mod Time2.DateTime {
         n
     
     pub def getDayOfYear(dt: DateTime): Int32 = 
-        ???
+        let DateTime(rec) = dt;
+        List.range(1, rec#month) 
+        |> List.map(m -> getDaysOfMonth(m, rec#year))
+        |> List.cons(rec#day)
+        |> List.sum
 
     pub def getDayOfMonth(dt: DateTime): Int32 = 
         let DateTime({day = d | _ }) = dt;
         d
 
-    pub def getDayOfWeek(dt: DateTime): DayOfWeek = 
-        ???
+    pub def getDayOfWeek(dt: DateTime): DayOfWeek \ IO = 
+        let ref = getDate(2026, 5, 25); // monday
+        let diff = difference(dt, ref) |> Duration.toDays;
+        let dayDiff = Int64.modulo(diff, 7i64) !> println |>  Int64.clampToInt32(min = -7, max = 7);
+        match dayDiff {
+            case 0 => DayOfWeek.MONDAY
+            case 1 => DayOfWeek.TUESDAY
+            case 2 => DayOfWeek.WEDNESDAY
+            case 3 => DayOfWeek.THURSDAY
+            case 4 => DayOfWeek.FRIDAY
+            case 5 => DayOfWeek.SATURDAY
+            case 6 => DayOfWeek.SUNDAY
+            case _ => unreachable!()
+        }
 
     pub def getAmPm(dt: DateTime): (Int32, AmPm) = 
         let DateTime({ hour = h | _ }) = dt;
