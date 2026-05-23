@@ -1,4 +1,5 @@
 pub mod Time2.DateTime {
+    use Time2.DateTime.getBalancedDateTime
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time2.DateTime.getDaysOfYear
     use Time2.DateTime.getDaysOfMonth
@@ -192,12 +193,12 @@ pub mod Time2.DateTime {
             year = year, 
             month = mo,
             day = day |> clamp(min = 1, max = getDaysOfMonth(mo, year)),
-            hour = hours |> clamp(min = 1, max = 24), 
-            minute = minutes |> clamp(min = 1, max = 60),
-            second = seconds |> clamp(min = 1, max = 60),
-            milli = milli |> clamp(min = 1, max = 1000),
-            micro = micro |> clamp(min = 1, max = 1000),
-            nano = nano |> clamp(min = 1, max = 1000),
+            hour = hours |> clamp(min = 0, max = 23), 
+            minute = minutes |> clamp(min = 0, max = 59),
+            second = seconds |> clamp(min = 0, max = 59),
+            milli = milli |> clamp(min = 0, max = 999),
+            micro = micro |> clamp(min = 0, max = 999),
+            nano = nano |> clamp(min = 0, max = 999),
             zone = z
         };
         DateTime(rec1)
@@ -244,72 +245,93 @@ pub mod Time2.DateTime {
         }
 
     pub def balanceDateTime(dt: DateTime): DateTime = 
-        def getModAndOverflow(n, m) = {
-            let mod_ = Int32.modulo(n, m);
+        use Int32.toInt64;
+        let DateTime(rec) = dt;
+        getBalancedDateTime(
+            rec#year |> toInt64, rec#month |> toInt64, 
+            rec#day |> toInt64, rec#hour |> toInt64, 
+            rec#minute |> toInt64, rec#second |> toInt64, 
+            rec#milli |> toInt64, rec#micro |> toInt64, 
+            rec#nano |> toInt64, rec#zone
+        )
+
+    pub def getBalancedDateTime(
+        year: Int64, month: Int64, day: Int64, 
+        hours: Int64, minutes: Int64, seconds: Int64, 
+        milli: Int64, micro: Int64, nano: Int64, zone: Option[UtcOffset]): DateTime = 
+        use Int64.clampToInt32;
+        use Int32.toInt64;
+        def getModAndOverflow(n: Int64, m: Int64): (Int64, Int64) = {
+            let mod_ = Int64.modulo(n, m);
             let over = n / m;
             (mod_, over)
         };
-        def recur(y, mo, d, h, min, s, mil, mic, nan, z): DateTime = { //refactor to work with i64
-            if (nan >= 1000 or nan < 0) {
-                let (nan1, over) = getModAndOverflow(nan, 1000);
+        def recur(y, mo: Int64, d: Int64, h: Int64, min: Int64, s: Int64, mil: Int64, mic: Int64, nan: Int64, z): DateTime = {
+            if (nan >= 1000i64 or nan < 0i64) {
+                let (nan1, over) = getModAndOverflow(nan, 1000i64);
                 let mic1 = mic + over;
                 recur(y, mo, d, h, min, s, mil, mic1, nan1, z)
-            } else if (mic >= 1000 or mic < 0) {
-                let (mic1, over) = getModAndOverflow(mic, 1000);
+            } else if (mic >= 1000i64 or mic < 0i64) {
+                let (mic1, over) = getModAndOverflow(mic, 1000i64);
                 let mil1 = mil + over;
                 recur(y, mo, d, h, min, s, mil1, mic1, nan, z)
-            } else if (mil >= 1000 or mil < 0) {
-                let (mil1, over) = getModAndOverflow(mil, 1000);
+            } else if (mil >= 1000i64 or mil < 0i64) {
+                let (mil1, over) = getModAndOverflow(mil, 1000i64);
                 let s1 = s + over;
                 recur(y, mo, d, h, min, s1, mil1, mic, nan, z)
-            } else if (s >= 60 or s < 0) {
-                let (s1, over) = getModAndOverflow(s, 60);
+            } else if (s >= 60i64 or s < 0i64) {
+                let (s1, over) = getModAndOverflow(s, 60i64);
                 let min1 = min + over;
                 recur(y, mo, d, h, min1, s1, mil, mic, nan, z)
-            } else if (min >= 60 or min < 0) {
-                let (min1, over) = getModAndOverflow(min, 60);
+            } else if (min >= 60i64 or min < 0i64) {
+                let (min1, over) = getModAndOverflow(min, 60i64);
                 let h1 = h + over;
                 recur(y, mo, d, h1, min1, s, mil, mic, nan, z)
-            } else if (h >= 24 or h < 0) {
-                let (h1, over) = getModAndOverflow(h, 24);
+            } else if (h >= 24i64 or h < 0i64) {
+                let (h1, over) = getModAndOverflow(h, 24i64);
                 let d1 = d + over;
                 recur(y, mo, d1, h1, min, s, mil, mic, nan, z)
-            } else if (mo > 12) {
-                let mo1 = mo - 12;
+            } else if (mo > 12i64) {
+                let mo1 = mo - 12i64;
                 let y1 = y + 1;
                 recur(y1, mo1, d, h, min, s, mil, mic, nan, z)
-            } else if (mo < 0) {
-                let mo1 = mo + 12;
+            } else if (mo < 0i64) {
+                let mo1 = mo + 12i64;
                 let y1 = y - 1;
                 recur(y1, mo1, d, h, min, s, mil, mic, nan, z)
-            } else if (d > getDaysOfMonth(mo, y)) {
-                let d1 = d - getDaysOfMonth(mo, y);
-                let mo1 = mo + 1;
+            } else 
+            let balancedMo = Int64.clampToInt32(min = 0, max = 12, mo);
+            let dom = getDaysOfMonth(balancedMo, y)
+            |> toInt64;
+            if (d > dom) {
+                let d1 = d - dom;
+                let mo1 = mo + 1i64;
                 recur(y, mo1, d1, h, min, s, mil, mic, nan, z)
-            } else if (d < 0) {
-                let lastMo = if (mo - 1 < 0) { 12 } else {mo - 1};
-                let d1 = d + getDaysOfMonth(lastMo, y) + 1;
-                let mo1 = mo - 1;
+            } else if (d < 0i64) {
+                let lastMo = if (balancedMo - 1 < 0) { 12 } else {balancedMo - 1};
+                let d1 = (clampToInt32(min = 0, max = 31, d) + getDaysOfMonth(lastMo, y) + 1)
+                |> toInt64;
+                let mo1 = mo - 1i64;
                 recur(y, mo1, d1, h, min, s, mil, mic, nan, z)
             } else {
-                getDateTime(y, mo, d, h, min, s, mil, mic, nan, z)
+                getDateTime(
+                    y, 
+                    balancedMo, 
+                    d   |> clampToInt32(min = 1, max = 31), 
+                    h   |> clampToInt32(min = 1, max = 24), 
+                    min |> clampToInt32(min = 1, max = 60), 
+                    s   |> clampToInt32(min = 1, max = 60), 
+                    mil |> clampToInt32(min = 1, max = 1000), 
+                    mic |> clampToInt32(min = 1, max = 1000), 
+                    nan |> clampToInt32(min = 1, max = 1000), 
+                    z
+                )
             }
         };
-        let DateTime(rec) = dt;
-        let {
-            year = year,
-            month = month,
-            day = day,
-            hour = hour, 
-            minute = minute,
-            second = second,
-            milli = milli,
-            micro = micro,
-            nano = nano,
-            zone = zone 
-        } = rec;
-        recur(year, month, day, hour, minute, second, milli, micro, nano, zone)
-
+        recur(
+            year |> clampToInt32(min = Int32.minValue(), max = Int32.maxValue()), 
+            month, day, hours, minutes, seconds, milli, micro, nano, zone
+        )
 
     pub def difference(dt1: DateTime, dt2: DateTime): Duration \ {} = 
         let (DateTime(rec1), DateTime(rec2)) = (dt1, dt2);
