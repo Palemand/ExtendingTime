@@ -189,7 +189,7 @@ pub mod Time2.DateTime {
         }
 
     ///
-    /// Returns the time in `dt` as its 12-hour representation.
+    /// Returns the hour in `dt` as its 12-hour representation.
     ///
     pub def getAmPm(dt: DateTime): (Int32, AmPm) = 
         let DateTime({ hour = h | _ }) = dt;
@@ -203,16 +203,16 @@ pub mod Time2.DateTime {
         }
 
     ///
-    /// Returns the value of `dt`s' `zone` field.
+    /// Gets the UTC-offset timezone of `dt`
     ///
     pub def getZone(dt: DateTime): Option[UtcOffset] = 
         let DateTime({zone = z | _ }) = dt;
         z
 
     ///
-    /// Returns a `DateTime` holding the given date. Time related fields are 0 and the time zone is `None`.
+    /// Returns a `DateTime` holding the given date. 
     ///
-    /// Input is clamped to be within standard accepted range. 
+    /// Input is clamped to be within legal range. 
     ///
     pub def getDate(year: Int32, month: Int32, day: Int32): DateTime = 
         getDateTime(year, month, day, 0, 0, 0, 0, 0, 0, None)
@@ -238,7 +238,7 @@ pub mod Time2.DateTime {
     ///
     /// Returns a `DateTime` holding the given date and time. 
     ///
-    /// Input is clamped to be within standard accepted range. 
+    /// Input is clamped to be within legal range. 
     ///
     pub def getDateTime(
         year: Int32, month: Int32, day: Int32, 
@@ -264,7 +264,7 @@ pub mod Time2.DateTime {
         DateTime(rec1)
 
     ///
-    /// Returns the month of the date corresponding to `dayOfYear` and `year`.
+    /// Returns the month of the date corresponding to `dayOfYear` in `year`.
     ///
     pub def getMonthFromDayOfYear(dayOfYear: Int32, year: Int32): Int32 = 
         def recur(doy, m) = {
@@ -284,8 +284,6 @@ pub mod Time2.DateTime {
     ///
     /// Returns the date corresponding to `dayOfYear` and `year`. Returns `None` if `dayOfYear` is invalid.
     ///
-    /// Time related fields are 0 and the time zone is `None`.
-    ///
     pub def getDateFromDayOfYear(dayOfYear: Int32, year: Int32): Option[DateTime] \ {} = 
         if ((dayOfYear > 366 and isLeapYear(year)) or (dayOfYear > 365 and (not isLeapYear(year))) or dayOfYear < 1) { None } else 
         let m = getMonthFromDayOfYear(dayOfYear, year);
@@ -301,12 +299,14 @@ pub mod Time2.DateTime {
         modulo(year, 4) == 0 and ((not (modulo(year, 100) == 0)) or modulo(year, 400) == 0)
 
     ///
-    /// Returns the number of days in `year`.
-    ///
+    /// Returns 366 if the `year` is a leap year. Otherwise, returns 365.
+    /// 
     pub def getDaysOfYear(year: Int32): Int32 = if (isLeapYear(year)) 366 else 365
 
     ///
-    /// Returns the number of days in the `month` of `year`. 
+    /// Returns the number of days in a given month. 
+    /// 
+    /// Returns 0 for `month < 1` and `month > 12`
     ///
     pub def getDaysOfMonth(month: Int32, year: Int32): Int32 = 
         if (month == 1 or month == 3 or month == 5 or month == 7 or month == 8 or month == 10 or month == 12) {
@@ -322,7 +322,9 @@ pub mod Time2.DateTime {
         }
 
     ///
-    /// Balances the fields of `dt` so all values are within standard ranges, without changing the depicted instant. 
+    /// Returns a `DateTime` where all fields have been balanced to legal values.
+    /// 
+    /// Calculates new date based on overflow and underflow.
     ///
     pub def balanceDateTime(dt: DateTime): DateTime = 
         use Int32.toInt64;
@@ -335,6 +337,11 @@ pub mod Time2.DateTime {
             rec#nano |> toInt64, rec#zone
         )
 
+    ///
+    /// Returns a new `DateTime` where all fields have been balanced to valid values.
+    /// 
+    /// Calculates new date based on overflow and underflow.
+    ///
     pub def getBalancedDateTime(
         year: Int64, month: Int64, day: Int64, 
         hours: Int64, minutes: Int64, seconds: Int64, 
@@ -411,8 +418,9 @@ pub mod Time2.DateTime {
             year |> clampToInt32(min = Int32.minValue(), max = Int32.maxValue()), 
             month, day, hours, minutes, seconds, milli, micro, nano, zone
         )
+
     ///
-    /// Returns the difference `dt1 - dt2`. 
+    /// Finds the time elapsed between `dt1` and `dt2`.
     ///
     pub def difference(dt1: DateTime, dt2: DateTime): Duration \ {} = 
         let (DateTime(rec1), DateTime(rec2)) = (dt1, dt2);
@@ -436,6 +444,10 @@ pub mod Time2.DateTime {
             case _ => Duration(0i64)
         };
         dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear + dzone
+
+    ///
+    /// Returns UNIX-epoch 0 as a `DateTime`
+    ///
     pub def epochTime(): DateTime = 
         Time2.DateTime.getDateTime(1970, 1, 1, 0, 0, 0, 0, 0, 0, None)
 }
