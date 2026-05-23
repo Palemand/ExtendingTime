@@ -93,7 +93,19 @@ pub mod Time2.DateTime {
         z
 
     pub def getDate(year: Int32, month: Int32, day: Int32): DateTime = 
-        ???
+        let dt = DateTime({
+            year = year, 
+            month = month,
+            day = day,
+            hour = 0, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = UtcOffset.UtcOffset(Duration.hours(0)) //skal ændres til None efter refactor af UtcOffset
+        });
+        dt
 
     pub def getDateTime(
         year: Int32, month: Int32, day: Int32, 
