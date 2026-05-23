@@ -81,7 +81,12 @@ pub mod Time2.DateTime {
         ???
 
     pub def getAmPm(dt: DateTime): (Int32, AmPm) = 
-        ???
+        let DateTime({ hour = h | _ }) = dt;
+        if (h < 13) {
+            (h, AmPm.AM)
+        } else {
+            (h, AmPm.PM)
+        }
 
     pub def getZone(dt: DateTime): UtcOffset = 
         let DateTime({zone = z | _ }) = dt;
