@@ -4,58 +4,59 @@ pub mod Time2.Flow {
     use Time2.Flow
 
     def addDuration(dt: DateTime, dur: Duration): DateTime = // barely correct. 
-        use Int64.modulo;
-        let DateTime(rec) = dt;
-        let {
-            year = year,
-            month = month,
-            day = day,
-            hour = hour, 
-            minute = minute,
-            second = second,
-            milli = milli,
-            micro = micro,
-            nano = nano,
-            zone = zone
-        } = rec;
-        let Duration(durNano) = dur;
-        region rc {
-            let nanoRef = Ref.fresh(rc, durNano);
-            let n1 = Ref.get(nanoRef);
-            let nano1 = modulo(n1, 1000i64);
-            Ref.transform(x -> x / 1_000i64, nanoRef);
-            let n2 = Ref.get(nanoRef);
-            let micro1 = modulo(n2, 1000i64);
-            Ref.transform(x -> x / 1_000i64, nanoRef);
-            let n3 = Ref.get(nanoRef);
-            let milli1 = modulo(n3, 1000i64);
-            Ref.transform(x -> x / 1_000i64, nanoRef);
-            let n4 = Ref.get(nanoRef);
-            let second1 = modulo(n4, 60i64);
-            Ref.transform(x -> x / 60i64, nanoRef);
-            let n5 = Ref.get(nanoRef);
-            let minute1 = modulo(n5, 60i64);
-            Ref.transform(x -> x / 60i64, nanoRef);
-            let n6 = Ref.get(nanoRef);
-            let hour1 = modulo(n6, 24i64);
-            Ref.transform(x -> x / 24i64, nanoRef);
-            let day1 = Ref.get(nanoRef);
-            let dayOfYear = Time2.DateTime.getDayOfYear(dt);
-            let dt1 = Time2.DateTime.getDateFromDayOfYear(dayOfYear + Option.getWithDefault(unreachable!(), Int64.tryToInt32(day1)), year); // might be wonky
-            let _ = Time2.DateTime.getDateTime(
-                year + Time2.DateTime.getYear(dt1),
-                month + Time2.DateTime.getMonth(dt1),
-                day + Time2.DateTime.getDayOfMonth(dt1),
-                hour + Int64.clampToInt32(min = 0, max = 1000, hour1),
-                minute + Int64.clampToInt32(min = 0, max = 1000, minute1),
-                second + Int64.clampToInt32(min = 0, max = 1000, second1),
-                milli + Int64.clampToInt32(min = 0, max = 1000, milli1),
-                micro + Int64.clampToInt32(min = 0, max = 1000, micro1),
-                nano + Int64.clampToInt32(min = 0, max = 1000, nano1), 
-                zone
-            );
-            ???
-        }
+        ???
+        // use Int64.modulo;
+        // let DateTime(rec) = dt;
+        // let {
+        //     year = year,
+        //     month = month,
+        //     day = day,
+        //     hour = hour, 
+        //     minute = minute,
+        //     second = second,
+        //     milli = milli,
+        //     micro = micro,
+        //     nano = nano,
+        //     zone = zone
+        // } = rec;
+        // let Duration(durNano) = dur;
+        // region rc {
+        //     let nanoRef = Ref.fresh(rc, durNano);
+        //     let n1 = Ref.get(nanoRef);
+        //     let nano1 = modulo(n1, 1000i64);
+        //     Ref.transform(x -> x / 1_000i64, nanoRef);
+        //     let n2 = Ref.get(nanoRef);
+        //     let micro1 = modulo(n2, 1000i64);
+        //     Ref.transform(x -> x / 1_000i64, nanoRef);
+        //     let n3 = Ref.get(nanoRef);
+        //     let milli1 = modulo(n3, 1000i64);
+        //     Ref.transform(x -> x / 1_000i64, nanoRef);
+        //     let n4 = Ref.get(nanoRef);
+        //     let second1 = modulo(n4, 60i64);
+        //     Ref.transform(x -> x / 60i64, nanoRef);
+        //     let n5 = Ref.get(nanoRef);
+        //     let minute1 = modulo(n5, 60i64);
+        //     Ref.transform(x -> x / 60i64, nanoRef);
+        //     let n6 = Ref.get(nanoRef);
+        //     let hour1 = modulo(n6, 24i64);
+        //     Ref.transform(x -> x / 24i64, nanoRef);
+        //     let day1 = Ref.get(nanoRef);
+        //     let dayOfYear = Time2.DateTime.getDayOfYear(dt);
+        //     let dt1 = Time2.DateTime.getDateFromDayOfYear(dayOfYear + Option.getWithDefault(unreachable!(), Int64.tryToInt32(day1)), year); // might be wonky
+        //     let _ = Time2.DateTime.getDateTime(
+        //         year + Time2.DateTime.getYear(dt1),
+        //         month + Time2.DateTime.getMonth(dt1),
+        //         day + Time2.DateTime.getDayOfMonth(dt1),
+        //         hour + Int64.clampToInt32(min = 0, max = 1000, hour1),
+        //         minute + Int64.clampToInt32(min = 0, max = 1000, minute1),
+        //         second + Int64.clampToInt32(min = 0, max = 1000, second1),
+        //         milli + Int64.clampToInt32(min = 0, max = 1000, milli1),
+        //         micro + Int64.clampToInt32(min = 0, max = 1000, micro1),
+        //         nano + Int64.clampToInt32(min = 0, max = 1000, nano1), 
+        //         zone
+        //     );
+        //     ???
+        // }
 
     @DefaultHandler
     pub def runWithIO(f: Unit -> a \ ef): a \ (ef - Flow) + IO =
