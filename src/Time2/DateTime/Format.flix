@@ -46,6 +46,8 @@ pub mod Time2.DateTime.Format {
     /// Sets `DateTime` format based on `pattern`. 
     /// Follows convention described at https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
     ///
+    /// Falls back to using ISO standard if pattern is rejected.
+    ///
     pub def runWithPattern(pattern: String, f: Unit -> a \ ef): a \ ef - Format =
         let formatter = unsafe IO { try {
             Some (DateTimeFormatter.ofPattern(pattern))

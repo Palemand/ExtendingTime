@@ -1,12 +1,15 @@
 pub mod Time2.DateTime.Parse {
-    use IoError.ErrorKind
-    use IoError.IoError
+    use IoError.{ErrorKind, IoError}
     use Time2.DateTime
     use Time2.DateTime.Parse
     import java.lang.Exception
     import java.time.format.DateTimeFormatter
     import java.time.ZonedDateTime
 
+
+    ///
+    /// Runs the parse effect by parsing with ISO 8601 standard.
+    ///
     @DefaultHandler
     pub def runWithIO(f: Unit -> a \ ef): a \ (ef - Parse) + IO =
         run {
@@ -20,7 +23,9 @@ pub mod Time2.DateTime.Parse {
                 };
                 k(s)
         }
-
+    ///
+    /// Runs the parse effect by parsing with ISO 8601 standard.
+    ///
     pub def runWithISO(f: Unit -> a \ ef): a \ (ef - Parse) =
         run {
             f()
@@ -33,7 +38,9 @@ pub mod Time2.DateTime.Parse {
                 }};
                 k(s)
         }
-
+    ///
+    /// Runs the parse effect by parsing with rfc 1123 standard.
+    ///
     pub def runWithRFC(f: Unit -> a \ ef): a \ (ef - Parse) =
         run {
             f()
@@ -46,7 +53,10 @@ pub mod Time2.DateTime.Parse {
                 }};
                 k(s)
         }
-
+    ///
+    /// Runs the parse effect by parsing with a user defined pattern.
+    /// Follows convention described at https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
+    ///
     pub def runWithPattern(pattern: String, f: Unit -> a \ ef): a \ ef - Parse =
         let formatter = unsafe IO { try {
             Ok(DateTimeFormatter.ofPattern(pattern))

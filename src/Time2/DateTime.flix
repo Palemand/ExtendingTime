@@ -1,7 +1,5 @@
 pub mod Time2.DateTime {
-    import java.time.ZonedDateTime;
-    import java.time.ZoneId;
-    import java.time.ZoneOffset;
+    import java.time.{ZonedDateTime, ZoneId, ZoneOffset};
     use Time2.DateTime.getBalancedDateTime
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time.Duration
@@ -32,11 +30,25 @@ pub mod Time2.DateTime {
     }
     
     ///
+    /// Function for parsing strings to DateTime objects.
+    /// Shortcut for invoking `Parse` effect
+    ///
+    pub def parse(x: String): Result[IoError, DateTime] \ Parse =
+        Parse.parse(x)
+    
+    ///
     /// Format effect for the indirect input of formatting rules.
     ///
     pub eff Format {
         def format(dt: DateTime): String 
     }
+
+    ///
+    /// Function for formatting DateTime objects.
+    /// Shortcut for invoking `Format` effect
+    ///
+    pub def format(dt: DateTime): String  \ Format =
+        Format.format(dt)
 
     ///
     /// Represents a UTC time zone as the duration between it and UTC+00:00.
@@ -513,10 +525,4 @@ pub mod Time2.DateTime {
     ///
     pub def epochZero(): DateTime = 
         Time2.DateTime.getDateTime(1970, 1, 1, 0, 0, 0, 0, 0, 0, Some (UtcOffset(Duration.zero())))
-
-    ///
-    /// Parses a string as a DateTime based on the convetional
-    ///
-    pub def parse(): DateTime = ???
-
 }
