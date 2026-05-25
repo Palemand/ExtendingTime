@@ -64,13 +64,12 @@ pub mod Time2.Flow {
     ///
     /// Middleware that intercepts the `Flow` effect, modifying the flow by applying `m` to it.
     ///
-    pub def withModification(m: Int64 -> Int64 \ ef1, f: Unit -> a \ ef2): a \ ((ef1 + ef2) - Flow) + Flow = 
+    pub def withModification(m: Duration -> Int64 \ ef1, f: Unit -> a \ ef2): a \ ((ef1 + ef2) - Flow) + Flow = 
         run {
             f()
         } with handler Flow {
             def add(dt, dur, k) = 
-                let Time.Duration(d) = dur;
-                let newDur = Time.Duration(m(d));
+                let newDur = Time.Duration(m(dur));
                 k(add(dt, newDur))
         }
 
