@@ -48,4 +48,19 @@ pub mod Time2.DateTime.Parse {
                 };
                 k(s)
         }
+
+    pub def runWithPattern(pattern: String, f: Unit -> a \ ef): a \ ef - Parse =
+        run {
+            f()
+        } with handler Parse {
+            def parse(x, k) =
+                let s = unsafe IO { 
+                    try{
+                        Some(ToFlix.toFlix(ZonedDateTime.parse(x, DateTimeFormatter.ofPattern(pattern))))
+                    } catch {
+                        case _: Exception => None
+                    }
+                };
+                k(s)
+        }
 }

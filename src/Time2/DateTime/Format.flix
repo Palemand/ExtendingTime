@@ -32,4 +32,12 @@ pub mod Time2.DateTime.Format {
                 let jdt = ToJava.toJava(dt);
                 k(unsafe IO {jdt.format(DateTimeFormatter.RFC_1123_DATE_TIME)})
         }
+    pub def runWithPattern(pattern: String, f: Unit -> a \ ef): a \ ef - Format =
+        run {
+            f()
+        } with handler Format {
+            def format(dt, k) = 
+                let jdt = ToJava.toJava(dt);
+                k(unsafe IO {jdt.format(DateTimeFormatter.ofPattern(pattern))})
+        }
 }
