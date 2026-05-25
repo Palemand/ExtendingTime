@@ -1,8 +1,12 @@
 pub mod Time2.DateTime {
+    import java.time.ZonedDateTime;
+    import java.time.ZoneId;
+    import java.time.ZoneOffset;
     use Time2.DateTime.getBalancedDateTime
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time.Duration
     use Time2.{Flow}
+    
 
     ///
     /// Represents a date and time. The time is stored in its 24-hour clock representation. 
@@ -19,6 +23,20 @@ pub mod Time2.DateTime {
         nano = Int32,
         zone = Option[UtcOffset]
     })
+
+    ///
+    /// Parse effect for the indirect input of parsing rules.
+    ///
+    pub eff Parse {
+        def parse(dt: DateTime): String 
+    }
+    
+    ///
+    /// Format effect for the indirect input of formatting rules.
+    ///
+    pub eff Format {
+        def format(dt: DateTime): String 
+    }
 
     ///
     /// Represents a UTC time zone as the duration between it and UTC+00:00.
@@ -80,8 +98,24 @@ pub mod Time2.DateTime {
             case DayOfWeek.Sunday => "Sunday"
             case DayOfWeek.Saturday => "Saturday"
         }
-    
     }
+
+    instance ToJava[DateTime] {
+        type Out = ZonedDateTime
+        type Aef = { }
+        pub def toJava(t: DateTime): ZonedDateTime \ { } = 
+            unsafe IO {
+                let DateTime(rec) = t;
+                let tzSeconds = match rec#zone {
+                    case Some(UtcOffset(dur)) => Duration.toSeconds(dur) |> (ss -> Int64.clampToInt32(min = -12, max = 14, ss))
+                    case None => 0
+                };
+                let jZone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(tzSeconds));
+                let totalNanos = rec#milli*1_000_000 + rec#micro * 1_000 + rec#nano;
+                ZonedDateTime.of(rec#year, rec#month, rec#day, rec#hour, rec#minute, rec#second, totalNanos, jZone)
+            }
+    }
+    
 
     ///
     /// Represents the days of the week.
@@ -453,5 +487,10 @@ pub mod Time2.DateTime {
     ///
     pub def epochZero(): DateTime = 
         Time2.DateTime.getDateTime(1970, 1, 1, 0, 0, 0, 0, 0, 0, Some (UtcOffset(Duration.zero())))
+
+    ///
+    /// Parses a string as a DateTime based on the convetional
+    ///
+    pub def parse(): DateTime = ???
 
 }

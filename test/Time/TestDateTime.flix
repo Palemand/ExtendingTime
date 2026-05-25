@@ -1,4 +1,5 @@
 pub mod TestDateTime {
+    import java.time.ZonedDateTime;
     use Assert.{assertEq, assertEqWithMsg, assertNone}
     use Time2.DateTime.{getDateFromDayOfYear, getDate, getDayOfWeek, getDayOfYear}
     use Time2.DateTime.UtcOffset.UtcOffset
