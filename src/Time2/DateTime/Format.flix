@@ -15,4 +15,21 @@ pub mod Time2.DateTime.Format {
                 k(jdt.format(DateTimeFormatter.ISO_ZONED_DATE_TIME))
         }
 
+    pub def runWithISO(f: Unit -> a \ ef): a \ (ef - Format) =
+        run {
+            f()
+        } with handler Format {
+            def format(dt, k) = 
+                let jdt = ToJava.toJava(dt);
+                k(unsafe IO {jdt.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)})
+        }
+
+    pub def runWithRfc(f: Unit -> a \ ef): a \ (ef - Format) =
+        run {
+            f()
+        } with handler Format {
+            def format(dt, k) = 
+                let jdt = ToJava.toJava(dt);
+                k(unsafe IO {jdt.format(DateTimeFormatter.RFC_1123_DATE_TIME)})
+        }
 }
