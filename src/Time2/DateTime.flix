@@ -1,8 +1,10 @@
 pub mod Time2.DateTime {
+    import java.time.{ZonedDateTime, ZoneId, ZoneOffset};
     use Time2.DateTime.getBalancedDateTime
     use Time2.DateTime.UtcOffset.UtcOffset
     use Time.Duration
     use Time2.{Flow}
+    
 
     ///
     /// Represents a date and time. The time is stored in its 24-hour clock representation. 
@@ -19,6 +21,34 @@ pub mod Time2.DateTime {
         nano = Int32,
         zone = Option[UtcOffset]
     })
+
+    ///
+    /// Parse effect for the indirect input of parsing rules.
+    ///
+    pub eff Parse {
+        def parse(x: String): Result[IoError, DateTime] 
+    }
+    
+    ///
+    /// Function for parsing strings to DateTime objects.
+    /// Shortcut for invoking `Parse` effect
+    ///
+    pub def parse(x: String): Result[IoError, DateTime] \ Parse =
+        Parse.parse(x)
+    
+    ///
+    /// Format effect for the indirect input of formatting rules.
+    ///
+    pub eff Format {
+        def format(dt: DateTime): String 
+    }
+
+    ///
+    /// Function for formatting DateTime objects.
+    /// Shortcut for invoking `Format` effect
+    ///
+    pub def format(dt: DateTime): String  \ Format =
+        Format.format(dt)
 
     ///
     /// Represents a UTC time zone as the duration between it and UTC+00:00.
@@ -47,8 +77,9 @@ pub mod Time2.DateTime {
 
     instance ToString[DateTime] {
         pub def toString(x: DateTime): String = 
-            let DateTime(rec) = x;
-            "${rec#year}:${rec#month}:${rec#day}:${rec#hour}:${rec#minute}:${rec#second}:${rec#milli}:${rec#micro}:${rec#nano}:${rec#zone}"
+            run {
+                DateTime.Format.format(x)
+            } with DateTime.Format.runWithISO
     }
     
     instance Order[DateTime] {
@@ -80,8 +111,49 @@ pub mod Time2.DateTime {
             case DayOfWeek.Sunday => "Sunday"
             case DayOfWeek.Saturday => "Saturday"
         }
+    }
+
+    instance ToJava[DateTime] {
+        type Out = ZonedDateTime
+        type Aef = { }
+        pub def toJava(t: DateTime): ZonedDateTime \ { } = 
+            unsafe IO {
+                let DateTime(rec) = t;
+                let tzSeconds = match rec#zone {
+                    case Some(UtcOffset(dur)) => Duration.toSeconds(dur) |> (ss -> Int64.clampToInt32(min = -12, max = 14, ss))
+                    case None => 0
+                };
+                let jZone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(tzSeconds));
+                let totalNanos = rec#milli*1_000_000 + rec#micro * 1_000 + rec#nano;
+                ZonedDateTime.of(rec#year, rec#month, rec#day, rec#hour, rec#minute, rec#second, totalNanos, jZone)
+            }
+    }
+
+    instance ToFlix[DateTime] {
+        type In = ZonedDateTime
+        type Aef = { }
+        pub def toFlix(jdt: ZonedDateTime): DateTime = unsafe IO {
+            let jNanos = jdt.getNano();
+            let millis = jNanos / 1_000_000;
+            let micros = jNanos / 1_000 - millis * 1_000;
+            let nanos = jNanos - millis * 1_000_000 - micros * 1_000;
+            Time2.DateTime({
+                year = jdt.getYear(), 
+                month = jdt.getMonthValue(),
+                day = jdt.getDayOfMonth(),
+                hour = jdt.getHour(), 
+                minute = jdt.getMinute(),
+                second = jdt.getSecond(),
+                milli = millis,
+                micro = micros,
+                nano = nanos,
+                zone = jdt.getOffset().getTotalSeconds() |> x -> Some(UtcOffset(Time.Duration.seconds(x)))
+            })
+            }
     
     }
+    
+    
 
     ///
     /// Represents the days of the week.
@@ -444,7 +516,7 @@ pub mod Time2.DateTime {
         |> (x) -> (if (y1 < y2) -1*x else x)  |> Duration.days;
         let dzone = match (rec1#zone, rec2#zone) {
             case (Some(UtcOffset(d1)), Some(UtcOffset(d2))) => d1 - d2
-            case _ => Duration(0i64) 
+            case _ => Duration.zero()
         };
         dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear - dzone
 
@@ -453,5 +525,4 @@ pub mod Time2.DateTime {
     ///
     pub def epochZero(): DateTime = 
         Time2.DateTime.getDateTime(1970, 1, 1, 0, 0, 0, 0, 0, 0, Some (UtcOffset(Duration.zero())))
-
 }
