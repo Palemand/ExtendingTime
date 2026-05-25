@@ -237,8 +237,36 @@ pub mod TestDateTime {
             nano = 0,
             zone = Some(UtcOffset(Duration.hours(-2)))
         });
-        assertEq(expected = Duration.hours(3), DateTime.difference(dt1, dt2))
+        assertEq(expected = Duration.hours(-3), DateTime.difference(dt1, dt2))
 
+    @Test
+    pub def testDifference04(): Unit \ Assert =
+        let dt1 = DateTime.DateTime({
+            year = 2000, 
+            month = 1,
+            day = 1,
+            hour = 12, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = Some(UtcOffset(Duration.hours(1)))
+        });
+        let dt2 = DateTime.DateTime({
+            year = 2000, 
+            month = 1,
+            day = 1,
+            hour = 11, 
+            minute = 0,
+            second = 0,
+            milli = 0,
+            micro = 0,
+            nano = 0,
+            zone = Some(UtcOffset(Duration.hours(0)))
+        });
+        assertEq(expected = Duration.hours(0), DateTime.difference(dt1, dt2))
+    
     @Test
     def getDayOfWeek01(): Unit \ Assert = 
         let dt1 = getDate(2026, 5, 23);
