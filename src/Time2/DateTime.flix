@@ -247,7 +247,8 @@ pub mod Time2.DateTime {
         let mo = month |> clamp(min = 1, max = 12);
         let z = match zone {
             case None => None
-            case Some(UtcOffset(Duration(s))) => Some(UtcOffset(Duration(clampInt64(min = -12i64, max = 14i64, s))))
+            case Some(UtcOffset(Duration(s))) => 
+            Some(UtcOffset(Duration(clampInt64(min = -43200000000000i64, max = 50400000000000i64, s))))
         };
         let rec1 = {
             year = year, 
