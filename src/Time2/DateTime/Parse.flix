@@ -1,7 +1,7 @@
 pub mod Time2.DateTime.Parse {
     use Time2.DateTime
     use Time2.DateTime.Parse
-
+    import java.lang.Exception
     import java.time.format.DateTimeFormatter
     import java.time.ZonedDateTime
 
@@ -11,8 +11,12 @@ pub mod Time2.DateTime.Parse {
             f()
         } with handler Parse {
             def parse(x, k) = 
-                let jdt = ZonedDateTime.parse(x, DateTimeFormatter.ISO_ZONED_DATE_TIME);
-                k(ToFlix.toFlix(jdt))
+                let s = try{
+                    Some(ToFlix.toFlix(ZonedDateTime.parse(x, DateTimeFormatter.ISO_ZONED_DATE_TIME)))
+                } catch {
+                    case _: Exception => None
+                };
+                k(s)
         }
 
     pub def runWithISO(f: Unit -> a \ ef): a \ (ef - Parse) =
@@ -20,8 +24,14 @@ pub mod Time2.DateTime.Parse {
             f()
         } with handler Parse {
             def parse(x, k) =
-                let jdt = unsafe IO {ZonedDateTime.parse(x, DateTimeFormatter.ISO_ZONED_DATE_TIME)};
-                k(ToFlix.toFlix(jdt))
+                let s = unsafe IO { 
+                    try{
+                        Some(ToFlix.toFlix(ZonedDateTime.parse(x, DateTimeFormatter.ISO_ZONED_DATE_TIME)))
+                    } catch {
+                        case _: Exception => None
+                    }
+                };
+                k(s)
         }
 
     pub def runWithRFC(f: Unit -> a \ ef): a \ (ef - Parse) =
@@ -29,7 +39,13 @@ pub mod Time2.DateTime.Parse {
             f()
         } with handler Parse {
             def parse(x, k) =
-                let jdt = unsafe IO {ZonedDateTime.parse(x, DateTimeFormatter.RFC_1123_DATE_TIME)};
-                k(ToFlix.toFlix(jdt))
+                let s = unsafe IO { 
+                    try{
+                        Some(ToFlix.toFlix(ZonedDateTime.parse(x, DateTimeFormatter.RFC_1123_DATE_TIME)))
+                    } catch {
+                        case _: Exception => None
+                    }
+                };
+                k(s)
         }
 }
