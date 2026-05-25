@@ -5,7 +5,7 @@ pub mod TestParse {
     @Test
     pub def testParse01(): Unit \ Assert + IO =
         run {
-            let expected = Some (DateTime.getDateTime(2026, 1, 1, 0, 0, 0, 0, 0, 0, Some(UtcOffset(Time.Duration.zero()))));
+            let expected = Ok (DateTime.getDateTime(2026, 1, 1, 0, 0, 0, 0, 0, 0, Some(UtcOffset(Time.Duration.zero()))));
             let parsed = DateTime.Parse.parse("2026-01-01T00:00:00Z");
             Assert.assertEq(expected = expected, parsed)
         } with Parse.runWithIO
