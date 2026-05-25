@@ -11,6 +11,8 @@ pub mod Time2.DateTime.Format {
             f()
         } with handler Format {
             def format(dt, k) = 
-                ???
+                let jdt = ToJava.toJava(dt);
+                k(jdt.format(DateTimeFormatter.ISO_ZONED_DATE_TIME))
         }
+
 }
