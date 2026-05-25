@@ -197,7 +197,7 @@ pub mod Time2.DateTime {
             (h, AmPm.AM)
         } else {
             if (h == 12)
-                (h, AmPm.AM)
+                (h, AmPm.PM)
             else
                 (Int32.modulo(h, 12), AmPm.PM)
         }
