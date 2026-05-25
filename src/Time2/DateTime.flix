@@ -445,11 +445,11 @@ pub mod Time2.DateTime {
             case (Some(UtcOffset(d1)), Some(UtcOffset(d2))) => d1 - d2
             case _ => Duration(0i64) 
         };
-        dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear + dzone
+        dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear - dzone
 
     ///
     /// Returns UNIX-epoch 0 as a `DateTime`
     ///
-    pub def epochTime(): DateTime = 
-        Time2.DateTime.getDateTime(1970, 1, 1, 0, 0, 0, 0, 0, 0, None)
+    pub def epoch(): DateTime = 
+        Time2.DateTime.getDateTime(1970, 1, 1, 0, 0, 0, 0, 0, 0, Some (UtcOffset(Duration.zero())))
 }
