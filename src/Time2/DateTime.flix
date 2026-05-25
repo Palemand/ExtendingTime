@@ -116,6 +116,31 @@ pub mod Time2.DateTime {
                 ZonedDateTime.of(rec#year, rec#month, rec#day, rec#hour, rec#minute, rec#second, totalNanos, jZone)
             }
     }
+
+    instance ToFlix[DateTime] {
+        type In = ZonedDateTime
+        type Aef = { }
+        pub def toFlix(jdt: ZonedDateTime): DateTime = unsafe IO {
+            let jNanos = jdt.getNano();
+            let millis = jNanos / 1_000_000;
+            let micros = jNanos / 1_000 - millis * 1_000;
+            let nanos = jNanos - millis * 1_000_000 - micros * 1_000;
+            Time2.DateTime({
+                year = jdt.getYear(), 
+                month = jdt.getMonthValue(),
+                day = jdt.getDayOfMonth(),
+                hour = jdt.getHour(), 
+                minute = jdt.getMinute(),
+                second = jdt.getSecond(),
+                milli = millis,
+                micro = micros,
+                nano = nanos,
+                zone = jdt.getOffset().getTotalSeconds() |> x -> Some(UtcOffset(Time.Duration.seconds(x)))
+            })
+            }
+    
+    }
+    
     
 
     ///
