@@ -65,8 +65,9 @@ pub mod Time2.DateTime {
 
     instance ToString[DateTime] {
         pub def toString(x: DateTime): String = 
-            let DateTime(rec) = x;
-            "${rec#year}:${rec#month}:${rec#day}:${rec#hour}:${rec#minute}:${rec#second}:${rec#milli}:${rec#micro}:${rec#nano}:${rec#zone}"
+            run {
+                DateTime.Format.format(x)
+            } with DateTime.Format.runWithISO
     }
     
     instance Order[DateTime] {
