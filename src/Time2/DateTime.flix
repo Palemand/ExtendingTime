@@ -450,6 +450,7 @@ pub mod Time2.DateTime {
     ///
     /// Returns UNIX-epoch 0 as a `DateTime`
     ///
-    pub def epoch(): DateTime = 
+    pub def epochZero(): DateTime = 
         Time2.DateTime.getDateTime(1970, 1, 1, 0, 0, 0, 0, 0, 0, Some (UtcOffset(Duration.zero())))
+
 }

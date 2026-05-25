@@ -10,8 +10,8 @@ pub mod TestTime {
         run {
             let now = Clock.now();
             let m1 = OClock.now();
-            let m2 = DateTime.difference(now, DateTime.epoch()) |> Duration.toMillis;
-            let x = 500i64;
+            let m2 = DateTime.difference(now, DateTime.epochZero()) |> Duration.toMillis;
+            let x = 20i64; //within 20 ms of eachother
             //println("m1: ${m1}, m2: ${m2}, diff: ${(m1 - m2) |> Int64.abs}");
             assert(m2 - x < m1 and m1 < m2 + x, 
             RichString.fromString("Assertion failed: m1: ${m1}, m2: ${m2}, diff: ${(m1 - m2) |> Int64.abs}"))

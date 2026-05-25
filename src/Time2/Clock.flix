@@ -8,7 +8,13 @@ pub mod Time2.Clock {
     use Time2.DateTime
     use Time2.Clock
     use Time2.Flow
-    
+
+    ///
+    /// Returns epoch, the time since 1970/01/01, as an Int64.
+    ///
+    pub def epoch(): Int64 \ Clock =
+        DateTime.difference(Clock.now(), DateTime.epochZero()) |> Duration.toMillis
+
     ///
     /// Runs the `Clock` effect of the given function `f`.
     ///
