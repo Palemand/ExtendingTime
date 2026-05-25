@@ -28,7 +28,7 @@ pub mod Time2.DateTime {
     /// Parse effect for the indirect input of parsing rules.
     ///
     pub eff Parse {
-        def parse(x: String): Option[DateTime] 
+        def parse(x: String): Result[IoError, DateTime] 
     }
     
     ///
