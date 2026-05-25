@@ -28,7 +28,7 @@ pub mod Time2.DateTime {
     /// Parse effect for the indirect input of parsing rules.
     ///
     pub eff Parse {
-        def parse(dt: DateTime): String 
+        def parse(x: String): DateTime 
     }
     
     ///
@@ -504,7 +504,7 @@ pub mod Time2.DateTime {
         |> (x) -> (if (y1 < y2) -1*x else x)  |> Duration.days;
         let dzone = match (rec1#zone, rec2#zone) {
             case (Some(UtcOffset(d1)), Some(UtcOffset(d2))) => d1 - d2
-            case _ => Duration(0i64) 
+            case _ => Duration.zero()
         };
         dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear - dzone
 
