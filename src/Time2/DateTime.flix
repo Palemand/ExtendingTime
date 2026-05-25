@@ -422,6 +422,8 @@ pub mod Time2.DateTime {
     ///
     /// Finds the time elapsed between `dt1` and `dt2`.
     ///
+    /// If one or both of the time zones are `None`, they will be treated as the same time zone.
+    ///
     pub def difference(dt1: DateTime, dt2: DateTime): Duration \ {} = 
         let (DateTime(rec1), DateTime(rec2)) = (dt1, dt2);
         let dnano = (rec1#nano - rec2#nano) |> Int32.toInt64 |> Duration.nanoseconds;
@@ -441,7 +443,7 @@ pub mod Time2.DateTime {
         |> (x) -> (if (y1 < y2) -1*x else x)  |> Duration.days;
         let dzone = match (rec1#zone, rec2#zone) {
             case (Some(UtcOffset(d1)), Some(UtcOffset(d2))) => d1 - d2
-            case _ => Duration(0i64)
+            case _ => Duration(0i64) 
         };
         dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear + dzone
 
