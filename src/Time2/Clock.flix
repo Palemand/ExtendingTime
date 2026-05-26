@@ -46,19 +46,21 @@ pub mod Time2.Clock {
     pub def withFlow(f: Unit -> a \ ef): a \ (ef - Clock) + Clock + Flow =
         region rc {
             let lastTime = Ref.fresh(rc, None);
+            let lastClean = Ref.fresh(rc, None);
             run {
                 f()
             } with handler Clock {
                 def now(k) = 
                     let nowActual = Clock.now();
-                    let last: Option[DateTime] = Ref.get(lastTime);
-                    match last {
-                        case Some(dt) => {
-                            let diff = Time2.DateTime.difference(dt, nowActual);
+                    match (Ref.get(lastTime), Ref.get(lastClean)) {
+                        case (Some(dt), Some(clean)) => {
+                            let diff = Time2.DateTime.difference(nowActual, clean);
+                            Ref.put(Some(nowActual), lastClean);
                             Flow.add(dt, diff) !> ((x) -> Ref.put(Some(x), lastTime)) |> k
                         }
-                        case None => {
-                            k(nowActual)
+                        case _ => {
+                            Ref.put(Some(nowActual), lastClean);
+                            nowActual !> ((x) -> Ref.put(Some(x), lastTime)) |> k
                         }
                     }
                     

@@ -120,7 +120,7 @@ pub mod Time2.DateTime {
             unsafe IO {
                 let DateTime(rec) = t;
                 let tzSeconds = match rec#zone {
-                    case Some(UtcOffset(dur)) => Duration.toSeconds(dur) |> (ss -> Int64.clampToInt32(min = -12, max = 14, ss))
+                    case Some(UtcOffset(dur)) => Duration.toSeconds(dur) |> (ss -> Int64.clampToInt32(min = -12* 3600 , max = 14* 3600 , ss))
                     case None => 0
                 };
                 let jZone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(tzSeconds));

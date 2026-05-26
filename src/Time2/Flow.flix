@@ -58,7 +58,7 @@ pub mod Time2.Flow {
             def add(dt, dur, k) = 
                 let Time.Duration(d) = dur;
                 let newDur = Time.Duration(d * m);
-                k(add(dt, newDur))
+                k(Flow.add(dt, newDur))
         }
 
     ///
