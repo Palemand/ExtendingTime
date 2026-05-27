@@ -249,7 +249,7 @@ pub mod Time2.DateTime {
     pub def getDayOfWeek(dt: DateTime): DayOfWeek \ {} = 
         let ref = getDate(2026, 5, 25); // monday
         let diff = difference(dt, ref) |> Duration.toDays;
-        let dayDiff = Int64.modulo(diff, 7i64) |>  Int64.clampToInt32(min = 0, max = 6);
+        let dayDiff = Int64.modulo(diff, 7i64) |> Int64.abs |> Int64.clampToInt32(min = 0, max = 6);
         match dayDiff {
             case 0 => DayOfWeek.Monday
             case 1 => DayOfWeek.Tuesday
