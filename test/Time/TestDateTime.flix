@@ -1,4 +1,5 @@
 pub mod TestDateTime {
+    use Assert.assert
     import java.time.ZonedDateTime;
     use Assert.{assertEq, assertEqWithMsg, assertNone}
     use Time2.DateTime.{getDateFromDayOfYear, getDate, getDayOfWeek, getDayOfYear}
@@ -314,4 +315,10 @@ pub mod TestDateTime {
         let dt1 = getDate(2025, 1, 1);
         let dayOfYear = getDayOfYear(dt1);
         assertEq(expected = 1, dayOfYear)
+    
+    @Test
+    def testGetDateFromDayOfYear(): Unit \ Assert =
+        let dt = getDateFromDayOfYear(-1, 2323);
+        assertEq(expected = None, dt)
+        
 }

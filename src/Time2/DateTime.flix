@@ -1,4 +1,5 @@
 pub mod Time2.DateTime {
+    use Time2.DateTime.getDayOfMonth
     import java.time.{ZonedDateTime, ZoneId, ZoneOffset};
     use Time2.DateTime.getBalancedDateTime
     use Time2.DateTime.UtcOffset.UtcOffset
@@ -231,7 +232,7 @@ pub mod Time2.DateTime {
     pub def getDayOfYear(dt: DateTime): Int32 = 
         let DateTime(rec) = dt;
         List.range(1, rec#month) 
-        |> List.map(m -> getDaysOfMonth(m, rec#year))
+        |> List.map(m -> getDaysOfMonthFatal(m, rec#year))
         |> List.cons(rec#day)
         |> List.sum
 
@@ -325,7 +326,7 @@ pub mod Time2.DateTime {
         let rec1 = {
             year = year, 
             month = mo,
-            day = day |> clamp(min = 1, max = getDaysOfMonth(mo, year)),
+            day = day |> clamp(min = 1, max = getDaysOfMonthFatal(mo, year)),
             hour = hours |> clamp(min = 0, max = 23), 
             minute = minutes |> clamp(min = 0, max = 59),
             second = seconds |> clamp(min = 0, max = 59),
@@ -339,9 +340,9 @@ pub mod Time2.DateTime {
     ///
     /// Returns the month of the date corresponding to `dayOfYear` in `year`.
     ///
-    pub def getMonthFromDayOfYear(dayOfYear: Int32, year: Int32): Int32 = 
+    pub def getMonthFromDayOfYear(dayOfYear: Int32, year: Int32): Option[Int32] = 
         def recur(doy, m) = {
-            let dm = getDaysOfMonth(m, year);
+            let dm = getDaysOfMonthFatal(m, year);
             if (doy > dm) {
                 recur(doy - dm, m + 1)
             } else {
@@ -349,9 +350,9 @@ pub mod Time2.DateTime {
             }
         };
         if ((dayOfYear > 366 and isLeapYear(year)) or (dayOfYear > 365 and (not isLeapYear(year))) or dayOfYear < 1) {
-            0
+            None
         } else {
-            recur(dayOfYear, 1)
+            Some(recur(dayOfYear, 1))
         }
 
     ///
@@ -359,8 +360,8 @@ pub mod Time2.DateTime {
     ///
     pub def getDateFromDayOfYear(dayOfYear: Int32, year: Int32): Option[DateTime] \ {} = 
         if ((dayOfYear > 366 and isLeapYear(year)) or (dayOfYear > 365 and (not isLeapYear(year))) or dayOfYear < 1) { None } else 
-        let m = getMonthFromDayOfYear(dayOfYear, year);
-        let s = List.range(1, m) |> List.map(x -> getDaysOfMonth(x, year)) |> List.sum;
+        let m = match getMonthFromDayOfYear(dayOfYear, year) {case Some(x) => x case None => unreachable!()};
+        let s = List.range(1, m) |> List.map(x -> getDaysOfMonthFatal(x, year)) |> List.sum;
         let d = dayOfYear - s;
         Some(getDateTime(year, m, d, 0, 0, 0, 0, 0, 0, None))
 
@@ -381,18 +382,24 @@ pub mod Time2.DateTime {
     /// 
     /// Returns 0 for `month < 1` and `month > 12`
     ///
-    pub def getDaysOfMonth(month: Int32, year: Int32): Int32 = 
+    pub def getDaysOfMonth(month: Int32, year: Int32): Option[Int32] = 
         if (month == 1 or month == 3 or month == 5 or month == 7 or month == 8 or month == 10 or month == 12) {
-            31
+            Some(31)
         } else if (month == 4 or month == 6 or month == 9 or month == 11) {
-            30
+            Some(30)
         } else if (month == 2 and isLeapYear(year)) {
-            29
+            Some(29)
         } else if (month == 2) {
-            28
+            Some(28)
         } else {
-            0
+            None
         }
+
+    ///
+    /// Helper function to handle option. Returns `unreachable!()` if getDaysOfMonth returns `None`
+    ///
+    def getDaysOfMonthFatal(month: Int32, year: Int32): Int32 =
+        Option.getWithDefault(unreachable!(), getDaysOfMonth(month, year))
 
     ///
     /// Returns a `DateTime` where all fields have been balanced to legal values.
@@ -461,7 +468,7 @@ pub mod Time2.DateTime {
                 recur(y1, mo1, d, h, min, s, mil, mic, nan, z)
             } else 
             let balancedMo = Int64.clampToInt32(min = 0, max = 12, mo);
-            let dom = getDaysOfMonth(balancedMo, y)
+            let dom = getDaysOfMonthFatal(balancedMo, y)
             |> toInt64;
             if (d > dom) {
                 let d1 = d - dom;
@@ -469,7 +476,7 @@ pub mod Time2.DateTime {
                 recur(y, mo1, d1, h, min, s, mil, mic, nan, z)
             } else if (d < 0i64) {
                 let lastMo = if (balancedMo == 1) { 12 } else {balancedMo - 1};
-                let d1 = d + ((getDaysOfMonth(lastMo, y) + 1) |> toInt64);
+                let d1 = d + ((getDaysOfMonthFatal(lastMo, y) + 1) |> toInt64);
                 let mo1 = mo - 1i64;
                 recur(y, mo1, d1, h, min, s, mil, mic, nan, z)
             } else {
@@ -508,7 +515,7 @@ pub mod Time2.DateTime {
         let ddays = (rec1#day - rec2#day) |> Duration.days;
         let dmonth = (rec1#month, rec2#month) 
         |> match (d1, d2) -> List.range(Int32.min(d1, d2), Int32.max(d1,d2))
-        |> List.foldLeft(accDays -> monthidx -> accDays + getDaysOfMonth(monthidx, rec2#year), 0)
+        |> List.foldLeft(accDays -> monthidx -> accDays + getDaysOfMonthFatal(monthidx, rec2#year), 0)
         |> (x) -> (if (d1 < d2) -1*x else x) |> Duration.days;
         let dyear = (rec1#year, rec2#year)
         |> match (y1, y2) -> List.range(Int32.min(y1, y2), Int32.max(y1,y2))
