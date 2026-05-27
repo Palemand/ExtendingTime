@@ -1,4 +1,5 @@
 pub mod Time2.DateTime {
+    use Time2.DateTime.difference
     use Time2.DateTime.getDayOfMonth
     import java.time.{ZonedDateTime, ZoneId, ZoneOffset};
     use Time2.DateTime.getBalancedDateTime
@@ -307,6 +308,17 @@ pub mod Time2.DateTime {
         } else {
             x
         }
+
+    ///
+    /// Function to change TimeZone, modifying the time according to the difference.
+    ///
+    pub def withZone(zone: UtcOffset, dt: DateTime): DateTime = 
+        let DateTime(rec) = dt;
+        let dt_ = DateTime({zone = Some(zone) | rec});
+        let diff = difference(dt, dt_);
+        run {
+            Flow.add(dt_, diff)
+        } with Flow.runWithPure
 
     ///
     /// Returns a `DateTime` holding the given date and time. 
