@@ -320,5 +320,11 @@ pub mod TestDateTime {
     def testGetDateFromDayOfYear(): Unit \ Assert =
         let dt = getDateFromDayOfYear(-1, 2323);
         assertEq(expected = None, dt)
-        
+    
+    @Test
+    def testWithZone(): Unit \ Assert =
+        let dt = DateTime.getDateTime(2010, 1, 1, 12, 0, 0, 0, 0, 0, Some(UtcOffset(Duration.hours(2))));
+        let expected = DateTime.getDateTime(2010, 1, 1, 10, 0, 0, 0, 0, 0, Some(UtcOffset(Duration.hours(0))));
+        let dt_ = DateTime.withZone(UtcOffset(Duration.zero()), dt);
+        assertEq(expected = expected, dt_)
 }

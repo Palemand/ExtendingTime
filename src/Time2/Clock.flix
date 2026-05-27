@@ -1,4 +1,5 @@
 pub mod Time2.Clock {
+    use Time2.DateTime.UtcOffset
     // rename to calendar effect.
     // or maybe rename old Clock to SysTime
 
@@ -32,7 +33,7 @@ pub mod Time2.Clock {
         }
     
     ///
-    /// Middleware that intercepts the `Clock` effect, modifying the flow by adding a constant `offset`.
+    /// Middleware that intercepts the `Clock` effect, modifying the time by adding a constant `offset`.
     ///
     pub def withOffset(offset: Duration, f:Unit -> a \ ef): a \ (ef - Clock) + Clock =
         run {
@@ -41,6 +42,18 @@ pub mod Time2.Clock {
             def now(k) = run {
                 k(Flow.add(Clock.now(), offset))
             } with Flow.runWithPure
+        }
+
+    ///
+    /// Middleware that intercepts the `Clock` effect, modifying timezone to be this zone.
+    /// Calculates the time in that zone.
+    ///
+    pub def withZone(zone: UtcOffset, f:Unit -> a \ ef): a \ (ef - Clock) + Clock =
+        run {
+            f()
+        } with handler Clock {
+            def now(k) =
+                k(DateTime.withZone(zone, Clock.now()))
         }
 
     pub def withFlow(f: Unit -> a \ ef): a \ (ef - Clock) + Clock + Flow =
