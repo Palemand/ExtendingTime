@@ -2,6 +2,7 @@ pub mod Time2.Flow {
     use Time2.DateTime.getBalancedDateTime
     use Time.Duration
     use Time2.DateTime
+    use Time2.TimeUnit
     use Time2.Flow
 
     def addDuration(dt: DateTime, dur: Duration): DateTime = // barely correct. 
@@ -61,16 +62,39 @@ pub mod Time2.Flow {
                 k(Flow.add(dt, newDur))
         }
 
-    ///
-    /// Middleware that intercepts the `Flow` effect, modifying the flow by applying `m` to it.
-    ///
-    pub def withModification(m: Duration -> Int64 \ ef1, f: Unit -> a \ ef2): a \ ((ef1 + ef2) - Flow) + Flow = 
-        run {
-            f()
-        } with handler Flow {
-            def add(dt, dur, k) = 
-                let newDur = Time.Duration(m(dur));
-                k(add(dt, newDur))
+    def unitToDur(u: TimeUnit, dur: Duration): Float64 =
+        match u {
+            case TimeUnit.Days => Duration.toNanos(dur) |> Int64.toFloat64 |> x -> x/(1_000_000_000f64 * 60f64 * 60f64 * 24f64)
+            case TimeUnit.Hours => Duration.toNanos(dur) |> Int64.toFloat64 |> x -> x/(1_000_000_000f64 * 60f64 * 60f64)
+            case TimeUnit.Minutes => Duration.toNanos(dur) |> Int64.toFloat64 |> x -> x/(1_000_000_000f64 * 60f64)
+            case TimeUnit.Seconds => Duration.toNanos(dur) |> Int64.toFloat64 |> x -> x/1_000_000_000f64
+            case TimeUnit.Milliseconds => Duration.toNanos(dur) |> Int64.toFloat64 |> x -> x/1_000_000f64
+            case TimeUnit.Microseconds => Duration.toNanos(dur) |> Int64.toFloat64 |> x -> x/1_000f64
+            case TimeUnit.Nanoseconds => Duration.toNanos(dur) |> Int64.toFloat64
+        }
+    
+    def unitToDurInv(u: TimeUnit, res: Float64): Duration =
+        match u {
+            case TimeUnit.Days => res |> (x -> x * 1_000_000_000f64 * 60f64 * 60f64 * 24f64) |> Float64.truncateToInt64 |> Duration.nanoseconds
+            case TimeUnit.Hours => res |> (x -> x * 1_000_000_000f64 * 60f64 * 60f64) |> Float64.truncateToInt64 |> Duration.nanoseconds
+            case TimeUnit.Minutes => res |> (x -> x * 1_000_000_000f64 * 60f64) |> Float64.truncateToInt64 |> Duration.nanoseconds
+            case TimeUnit.Seconds => res |> (x -> x * 1_000_000_000f64) |> Float64.truncateToInt64 |> Duration.nanoseconds
+            case TimeUnit.Milliseconds => res |> (x -> x * 1_000_000f64) |> Float64.truncateToInt64 |> Duration.nanoseconds
+            case TimeUnit.Microseconds => res |> (x -> x * 1_000f64) |> Float64.truncateToInt64 |> Duration.nanoseconds
+            case TimeUnit.Nanoseconds => res |> Float64.truncateToInt64 |> Duration.nanoseconds
         }
 
+    pub def withFunction(m: Float64 -> Float64, u: TimeUnit, f: Unit -> a \ ef): a \ ef - Flow + Flow =
+        region rc {
+            let _rf = Ref.fresh(rc, None);
+            let _rfc = Ref.fresh(rc, None);
+            run {
+                f()
+            } with handler Flow {
+                def add(dt, dur, k) = {
+                    let dur_ = unitToDur(u, dur) |> m |> unitToDurInv(u);
+                    k(Flow.add(dt, dur_))
+                }
+            }
+        }
 }
