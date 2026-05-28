@@ -35,12 +35,15 @@ pub mod TestClock {
             run {
                 let fst = Clock.now();
                 let snd = Clock.now();
-                assertEq(expected = Time.Duration.days(-1), DateTime.difference(fst, snd))
+                let third = Clock.now();
+                assertEq(expected = Time.Duration.days(-4), DateTime.difference(fst, snd));
+                assertEq(expected = Time.Duration.days(-8), DateTime.difference(fst, third))
             } with Clock.withFlow
+            with Flow.withFunction(x -> x*x, Time2.TimeUnit.Days)
             with Flow.runWithPure
             with handler Clock {
                 def now(k) = {
-                    Ref.transform(x -> x+1, rf);
+                    Ref.transform(x -> x+2, rf);
                     k(Time2.DateTime.getDate(1969, 1, Ref.get(rf)))
                 }
             }
