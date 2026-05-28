@@ -86,20 +86,14 @@ pub mod Time2.Flow {
     ///
     /// Middleware handler that changes the duration, following the function `m` with the TimeUnit `u`.
     ///
-    /// Will follow the function on every call to Flow.add, not from the first call.
-    ///
     pub def withFunction(m: Float64 -> Float64, u: TimeUnit, f: Unit -> a \ ef): a \ ef - Flow + Flow =
-        region rc {
-            let _rf = Ref.fresh(rc, None);
-            let _rfc = Ref.fresh(rc, None);
-            run {
-                f()
-            } with handler Flow {
-                def add(dt, dur, k) = {
-                    let dur_ = unitToDur(u, dur) |> m |> unitToDurInv(u);
-                    k(Flow.add(dt, dur_))
-                }
+        run {
+            f()
+        } with handler Flow {
+            def add(dt, dur, k) = {
+                let dur_ = unitToDur(u, dur) |> m |> unitToDurInv(u);
+                k(Flow.add(dt, dur_))
             }
         }
-
+    
 }
