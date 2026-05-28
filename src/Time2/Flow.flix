@@ -83,7 +83,11 @@ pub mod Time2.Flow {
             case TimeUnit.Microseconds => res |> (x -> x * 1_000f64) |> Float64.truncateToInt64 |> Duration.nanoseconds
             case TimeUnit.Nanoseconds => res |> Float64.truncateToInt64 |> Duration.nanoseconds
         }
-
+    ///
+    /// Middleware handler that changes the duration, following the function `m` with the TimeUnit `u`.
+    ///
+    /// Will follow the function on every call to Flow.add, not from the first call.
+    ///
     pub def withFunction(m: Float64 -> Float64, u: TimeUnit, f: Unit -> a \ ef): a \ ef - Flow + Flow =
         region rc {
             let _rf = Ref.fresh(rc, None);
@@ -97,4 +101,5 @@ pub mod Time2.Flow {
                 }
             }
         }
+
 }
