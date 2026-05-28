@@ -56,30 +56,23 @@ pub mod Time2.Clock {
                 k(DateTime.withZone(zone, Clock.now()))
         }
     ///
-    /// Middleware that adds the Flow effect for calculating elapsed time between calls to `Clock.now`.
+    /// Middleware that adds the Flow effect for calculating elapsed time between calls to `Clock.now` and the first call.
     /// The first call will behave as normal.
     ///
     pub def withFlow(f: Unit -> a \ ef): a \ (ef - Clock) + Clock + Flow =
         region rc {
-            let lastTime = Ref.fresh(rc, None);
-            let lastClean = Ref.fresh(rc, None);
+            let rf = Ref.fresh(rc, None);
             run {
                 f()
             } with handler Clock {
                 def now(k) = 
-                    let nowActual = Clock.now();
-                    match (Ref.get(lastTime), Ref.get(lastClean)) {
-                        case (Some(dt), Some(clean)) => {
-                            let diff = Time2.DateTime.difference(nowActual, clean);
-                            Ref.put(Some(nowActual), lastClean);
-                            Flow.add(dt, diff) !> ((x) -> Ref.put(Some(x), lastTime)) |> k
-                        }
-                        case _ => {
-                            Ref.put(Some(nowActual), lastClean);
-                            nowActual !> ((x) -> Ref.put(Some(x), lastTime)) |> k
-                        }
+                    let now = Clock.now();
+                    match Ref.get(rf) {
+                        case None => {Ref.put(Some(now), rf); k(now)}
+                        case Some(first) => 
+                            DateTime.difference(now, first)
+                            |> Flow.add(first) |> k
                     }
-                    
             }
         }
 

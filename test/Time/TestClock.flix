@@ -34,10 +34,12 @@ pub mod TestClock {
             let rf = Ref.fresh(rc, 0);
             run {
                 let fst = Clock.now();
+                //2 dage
                 let snd = Clock.now();
+                //2 dage
                 let third = Clock.now();
                 assertEq(expected = Time.Duration.days(-4), DateTime.difference(fst, snd));
-                assertEq(expected = Time.Duration.days(-8), DateTime.difference(fst, third))
+                assertEq(expected = Time.Duration.days(-16), DateTime.difference(fst, third))
             } with Clock.withFlow
             with Flow.withFunction(x -> x*x, Time2.TimeUnit.Days)
             with Flow.runWithPure
