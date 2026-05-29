@@ -3,7 +3,7 @@ pub mod TestDateTime {
     import java.time.ZonedDateTime;
     use Assert.{assertEq, assertEqWithMsg, assertNone}
     use Time2.DateTime.{getDateFromDayOfYear, getDate, getDayOfWeek, getDayOfYear}
-    use Time2.DateTime.UtcOffset.UtcOffset
+    use Time2.DateTime.UTCOffset.UTCOffset
     use Time2.DateTime
     use Time2.DateTime.DayOfWeek.{Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday}
     use Time.Duration.Duration
@@ -29,9 +29,9 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = Some(UtcOffset(Time.Duration.hours(-10) - Time.Duration.minutes(30)))
+            zone = Some(UTCOffset(Time.Duration.hours(-10) - Time.Duration.minutes(30)))
         });
-        assertEq(expected = "UTC-10:30", Option.getWithDefault(UtcOffset(Duration(0i64)), Time2.DateTime.getZone(dt)) |> ToString.toString)
+        assertEq(expected = "UTC-10:30", Option.getWithDefault(UTCOffset(Duration(0i64)), Time2.DateTime.getZone(dt)) |> ToString.toString)
 
     @Test
     def testGetDateFromDayOfYear01(): Unit \ Assert + Abort = 
@@ -225,7 +225,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = Some(UtcOffset(Duration.hours(1)))
+            zone = Some(UTCOffset(Duration.hours(1)))
         });
         let dt2 = DateTime.DateTime({
             year = 2000, 
@@ -237,7 +237,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = Some(UtcOffset(Duration.hours(-2)))
+            zone = Some(UTCOffset(Duration.hours(-2)))
         });
         assertEq(expected = Duration.hours(-3), DateTime.difference(dt1, dt2))
 
@@ -253,7 +253,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = Some(UtcOffset(Duration.hours(1)))
+            zone = Some(UTCOffset(Duration.hours(1)))
         });
         let dt2 = DateTime.DateTime({
             year = 2000, 
@@ -265,7 +265,7 @@ pub mod TestDateTime {
             milli = 0,
             micro = 0,
             nano = 0,
-            zone = Some(UtcOffset(Duration.hours(0)))
+            zone = Some(UTCOffset(Duration.hours(0)))
         });
         assertEq(expected = Duration.hours(0), DateTime.difference(dt1, dt2))
     
@@ -323,8 +323,8 @@ pub mod TestDateTime {
     
     @Test
     def testWithZone(): Unit \ Assert =
-        let dt = DateTime.getDateTime(2010, 1, 1, 12, 0, 0, 0, 0, 0, Some(UtcOffset(Duration.hours(2))));
-        let expected = DateTime.getDateTime(2010, 1, 1, 10, 0, 0, 0, 0, 0, Some(UtcOffset(Duration.hours(0))));
-        let dt_ = DateTime.withZone(UtcOffset(Duration.zero()), dt);
+        let dt = DateTime.getDateTime(2010, 1, 1, 12, 0, 0, 0, 0, 0, Some(UTCOffset(Duration.hours(2))));
+        let expected = DateTime.getDateTime(2010, 1, 1, 10, 0, 0, 0, 0, 0, Some(UTCOffset(Duration.hours(0))));
+        let dt_ = DateTime.withZone(UTCOffset(Duration.zero()), dt);
         assertEq(expected = expected, dt_)
 }
