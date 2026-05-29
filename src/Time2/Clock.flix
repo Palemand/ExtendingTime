@@ -1,11 +1,11 @@
 pub mod Time2.Clock {
-    use Time2.DateTime.UtcOffset
+    use Time2.DateTime.UTCOffset
     // rename to calendar effect.
     // or maybe rename old Clock to SysTime
 
     import java.time.{ZonedDateTime => JZonedDateTime}
     use Time.Duration
-    use Time2.DateTime.UtcOffset.UtcOffset
+    use Time2.DateTime.UTCOffset.UTCOffset
     use Time2.DateTime
     use Time2.Clock
     use Time2.Flow
@@ -48,7 +48,7 @@ pub mod Time2.Clock {
     /// Middleware that intercepts the `Clock` effect, modifying timezone to be this zone.
     /// Calculates the time in that zone.
     ///
-    pub def withZone(zone: UtcOffset, f:Unit -> a \ ef): a \ (ef - Clock) + Clock =
+    pub def withZone(zone: UTCOffset, f:Unit -> a \ ef): a \ (ef - Clock) + Clock =
         run {
             f()
         } with handler Clock {
