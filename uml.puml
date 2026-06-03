@@ -1,0 +1,95 @@
+@startuml timeOverview
+left to right direction
+hide empty members
+'skinparam linetype ortho
+'skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam nodesep 18
+skinparam ranksep 18
+
+interface "Eq[T]" <<Trait>> {
+    {abstract} +eq(x: T, y: T): Bool
+}
+
+interface "Order[T]" <<Trait>> {
+    {abstract} +compare(x: T, y: T): Bool
+}
+
+package "Time" {
+    hide empty members
+
+    package "DateTime" as DateTimeModule {
+        hide empty members
+        enum "DateTime" as DateTime {
+            -year: Int32
+            -month: Int32
+            -day: Int32
+            -hour: Int32
+            -minute: Int32
+            -second: Int32
+            -milli: Int32
+            -micro: Int32
+            -nano: Int32
+            -zone: Option[UTCOffset]
+        }
+
+        class DateTimeDefs <<Module>> {
+            +getDateTime(...): DateTime
+            +difference(DateTime, DateTime): Duration
+            +parse(DateTime): String \ Parse
+            +format(String): DateTime \ Format
+        }
+
+        interface "Parse" as Parse<<Effect>> {
+            {abstract} +parse(DateTime): String
+        }
+
+        interface "Format" as Format<<Effect>> {
+            {abstract} +format(String): DateTime
+        }
+    }
+
+    interface "Clock" as Clock<<Effect>> {
+        {abstract} +now(): DateTime
+    }
+
+    interface "Flow" as Flow <<Effect>> {
+        {abstract} +add(DateTime, Duration): DateTime
+    }
+
+    package "Clock" as ClockModule {
+        hide empty members
+
+        class ClockDefs <<Module>> {
+            +epoch() \ Clock
+        }
+
+        class ClockHandlers <<Module>> {
+            #runWithIO \ ef - Clock + IO
+            #withFlow \ ef + Flow
+        }
+    }
+
+    package "Flow" as FlowModule {
+        hide empty members
+
+        class FlowDefs <<Module>> {
+            +addDuration(DateTime, Duration): DateTime
+        }
+
+        class FlowHandlers <<Module>> {
+            #runWithPure \ ef - Flow
+            #withFunction \ ef - Flow + Flow 
+        }
+    }
+}
+'relations
+DateTime ..|> "Eq[T]" : "instance"
+DateTime ..|> "Order[T]" : "instance"
+ClockHandlers ..|> Clock : "handles"
+ClockDefs ..> Clock : "invokes"
+ClockHandlers ..> Flow : "invokes"
+FlowHandlers ..|> Flow : "handles"
+DateTimeDefs ..> Parse : "invokes"
+DateTimeDefs ..> Format : "invokes"
+@enduml
