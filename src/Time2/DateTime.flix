@@ -279,7 +279,7 @@ pub mod Time2.DateTime {
         z
 
     ///
-    /// 
+    /// Helper function to retrieve "UTC+0" timezone.
     ///
     pub def getZ(): UTCOffset = UTCOffset(Duration.zero())
 
