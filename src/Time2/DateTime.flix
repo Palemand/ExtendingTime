@@ -320,6 +320,13 @@ pub mod Time2.DateTime {
         run {
             Flow.add(dt_, diff)
         } with Flow.runWithPure
+    
+    ///
+    /// Function to change timezone, returning an exact copy of the instance, with the `zone` argument as timezone.
+    ///
+    pub def setZone(zone: UTCOffset, dt: DateTime): DateTime = 
+        let DateTime(rec) = dt;
+        DateTime({zone = zone | rec})
 
     ///
     /// Returns a `DateTime` holding the given date and time. 
