@@ -21,7 +21,7 @@ pub mod Time2.DateTime {
         milli = Int32,
         micro = Int32,
         nano = Int32,
-        zone = Option[UTCOffset]
+        zone = UTCOffset
     })
 
     ///
@@ -61,10 +61,6 @@ pub mod Time2.DateTime {
         pub def eq(x: DateTime, y: DateTime): Bool = 
             let DateTime(rec1) = x;
             let DateTime(rec2) = y;
-            let sameZone = match (rec1#zone, rec2#zone) {
-                case (Some(z1), Some(z2)) => z1 == z2
-                case _ => true
-            };
             rec1#year == rec2#year and 
             rec1#month == rec2#month and 
             rec1#day == rec2#day and 
@@ -74,7 +70,7 @@ pub mod Time2.DateTime {
             rec1#milli == rec2#milli and 
             rec1#micro == rec2#micro and 
             rec1#nano == rec2#nano and 
-            sameZone
+            rec1#zone == rec2#zone
     }
 
     instance ToString[DateTime] {
@@ -122,8 +118,7 @@ pub mod Time2.DateTime {
             unsafe IO {
                 let DateTime(rec) = t;
                 let tzSeconds = match rec#zone {
-                    case Some(UTCOffset(dur)) => Duration.toSeconds(dur) |> (ss -> Int64.clampToInt32(min = -12* 3600 , max = 14* 3600 , ss))
-                    case None => 0
+                    case UTCOffset(dur) => Duration.toSeconds(dur) |> (ss -> Int64.clampToInt32(min = -12* 3600 , max = 14* 3600 , ss))
                 };
                 let jZone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(tzSeconds));
                 let totalNanos = rec#milli*1_000_000 + rec#micro * 1_000 + rec#nano;
@@ -149,7 +144,7 @@ pub mod Time2.DateTime {
                 milli = millis,
                 micro = micros,
                 nano = nanos,
-                zone = jdt.getOffset().getTotalSeconds() |> x -> Some(UTCOffset(Time.Duration.seconds(x)))
+                zone = jdt.getOffset().getTotalSeconds() |> x -> UTCOffset(Time.Duration.seconds(x))
             })
             }
     
@@ -279,17 +274,23 @@ pub mod Time2.DateTime {
     ///
     /// Gets the UTC-offset timezone of `dt`
     ///
-    pub def getZone(dt: DateTime): Option[UTCOffset] = 
+    pub def getZone(dt: DateTime): UTCOffset = 
         let DateTime({zone = z | _ }) = dt;
         z
+
+    ///
+    /// 
+    ///
+    pub def getZ(): UTCOffset = UTCOffset(Duration.zero())
 
     ///
     /// Returns a `DateTime` holding the given date. 
     ///
     /// Input is clamped to be within legal range. 
+    /// Timezone will be set to Z
     ///
     pub def getDate(year: Int32, month: Int32, day: Int32): DateTime = 
-        getDateTime(year, month, day, 0, 0, 0, 0, 0, 0, None)
+        getDateTime(year, month, day, 0, 0, 0, 0, 0, 0, getZ())
 
     def clamp(min: {min = Int32}, max: {max = Int32}, x: Int32): Int32 = 
         if (x < min#min) {
@@ -310,11 +311,11 @@ pub mod Time2.DateTime {
         }
 
     ///
-    /// Function to change TimeZone, modifying the time according to the difference.
+    /// Function to change timezone, modifying the time according to the difference.
     ///
     pub def withZone(zone: UTCOffset, dt: DateTime): DateTime = 
         let DateTime(rec) = dt;
-        let dt_ = DateTime({zone = Some(zone) | rec});
+        let dt_ = DateTime({zone = zone | rec});
         let diff = difference(dt, dt_);
         run {
             Flow.add(dt_, diff)
@@ -328,12 +329,10 @@ pub mod Time2.DateTime {
     pub def getDateTime(
         year: Int32, month: Int32, day: Int32, 
         hours: Int32, minutes: Int32, seconds: Int32, 
-        milli: Int32, micro: Int32, nano: Int32, zone: Option[UTCOffset]): DateTime = 
+        milli: Int32, micro: Int32, nano: Int32, zone: UTCOffset): DateTime = 
         let mo = month |> clamp(min = 1, max = 12);
         let z = match zone {
-            case None => None
-            case Some(UTCOffset(Duration(s))) => 
-            Some(UTCOffset(Duration(clampInt64(min = -43200000000000i64, max = 50400000000000i64, s))))
+            case UTCOffset(Duration(s)) => UTCOffset(Duration(clampInt64(min = -43200000000000i64, max = 50400000000000i64, s)))
         };
         let rec1 = {
             year = year, 
@@ -369,13 +368,14 @@ pub mod Time2.DateTime {
 
     ///
     /// Returns the date corresponding to `dayOfYear` and `year`. Returns `None` if `dayOfYear` is invalid.
+    /// Timezone is set to Z.
     ///
     pub def getDateFromDayOfYear(dayOfYear: Int32, year: Int32): Option[DateTime] \ {} = 
         if ((dayOfYear > 366 and isLeapYear(year)) or (dayOfYear > 365 and (not isLeapYear(year))) or dayOfYear < 1) { None } else 
         let m = match getMonthFromDayOfYear(dayOfYear, year) {case Some(x) => x case None => unreachable!()};
         let s = List.range(1, m) |> List.map(x -> getDaysOfMonthFatal(x, year)) |> List.sum;
         let d = dayOfYear - s;
-        Some(getDateTime(year, m, d, 0, 0, 0, 0, 0, 0, None))
+        Some(getDateTime(year, m, d, 0, 0, 0, 0, 0, 0, getZ()))
 
     ///
     /// Returns `true` if `year` is a leap year.
@@ -437,7 +437,7 @@ pub mod Time2.DateTime {
     pub def getBalancedDateTime(
         year: Int64, month: Int64, day: Int64, 
         hours: Int64, minutes: Int64, seconds: Int64, 
-        milli: Int64, micro: Int64, nano: Int64, zone: Option[UTCOffset]): DateTime = 
+        milli: Int64, micro: Int64, nano: Int64, zone: UTCOffset): DateTime = 
         use Int64.clampToInt32;
         use Int32.toInt64;
         def getModAndOverflow(n: Int64, m: Int64): (Int64, Int64) = {
@@ -514,8 +514,6 @@ pub mod Time2.DateTime {
     ///
     /// Finds the time elapsed between `dt1` and `dt2`.
     ///
-    /// If one or both of the time zones are `None`, they will be treated as the same time zone.
-    ///
     pub def difference(dt1: DateTime, dt2: DateTime): Duration \ {} = 
         let (DateTime(rec1), DateTime(rec2)) = (dt1, dt2);
         let dnano = (rec1#nano - rec2#nano) |> Int32.toInt64 |> Duration.nanoseconds;
@@ -534,14 +532,14 @@ pub mod Time2.DateTime {
         |> List.foldLeft(accDays -> year -> accDays + getDaysOfYear(year), 0)
         |> (x) -> (if (y1 < y2) -1*x else x)  |> Duration.days;
         let dzone = match (rec1#zone, rec2#zone) {
-            case (Some(UTCOffset(d1)), Some(UTCOffset(d2))) => d1 - d2
-            case _ => Duration.zero()
+            case (UTCOffset(d1), UTCOffset(d2)) => d1 - d2
         };
         dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear - dzone
 
     ///
     /// Returns UNIX-epoch 0 as a `DateTime`
+    /// Timezone is set to Z.
     ///
     pub def epochZero(): DateTime = 
-        Time2.DateTime.getDateTime(1970, 1, 1, 0, 0, 0, 0, 0, 0, Some (UTCOffset(Duration.zero())))
+        Time2.DateTime.getDateTime(1970, 1, 1, 0, 0, 0, 0, 0, 0, getZ())
 }

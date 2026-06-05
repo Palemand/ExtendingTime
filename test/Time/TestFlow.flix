@@ -30,7 +30,7 @@ pub mod TestFlow {
     
     pub def testFlow03(): Unit \ IO =
         run {
-            let dt = DateTime.getDateTime(2000, 1, 1, 12, 0, 0, 0, 0, 0, None);
+            let dt = DateTime.getDateTime(2000, 1, 1, 12, 0, 0, 0, 0, 0, DateTime.getZ());
             let dt1 = Flow.add(dt, Duration.nanoseconds(2_500_000_000i64));
             let dt2 = Flow.add(dt1, Duration.seconds(5));
             List#{dt, dt1, dt2} |> List.forEach(x -> DateTime.format(x) |> println)
