@@ -544,6 +544,13 @@ pub mod Time2.DateTime {
         dnano + dmicro + dmilli + dsecond + dminute + dhour + ddays + dmonth + dyear - dzone
 
     ///
+    /// Finds the localized time elapsed between `dt1` and `dt2`.
+    /// Treats both datetimes as being from the same timezone, before doing the calculation.
+    ///
+    pub def localDifference(dt1: DateTime, dt2: DateTime): Duration =
+        difference(setZone(getZ(), dt1), setZone(getZ(), dt2))
+    
+    ///
     /// Returns UNIX-epoch 0 as a `DateTime`
     /// Timezone is set to Z.
     ///
